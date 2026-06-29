@@ -64,6 +64,21 @@ primary    ::= '(' expr ')' | comparison     ← 最里层：括号 / 原子
 comparison ::= IDENT ('==' | '>=') value
 ```
 
+### 怎么读懂一行文法
+
+BNF 乍看像天书，其实逐块拆开很简单。以 `orExpr ::= andExpr ('or' andExpr)*` 这行为例：
+
+| 片段 | 读作 |
+|---|---|
+| `orExpr ::=` | "一个 orExpr，由……构成" |
+| `andExpr` | 必须**以一个 andExpr 打头** |
+| `('or' andExpr)` | 一组『`or` + 一个 andExpr』 |
+| `( … )*` | 上面这组可以**重复 0 次或多次** |
+
+合起来：**一个 orExpr = 一个 andExpr，后面接任意多个『or 加一个 andExpr』**。所以 `a`、`a or b`、`a or b or c` 都是合法的 orExpr。
+
+那注释里"**or 在最外层**"是什么意思？顶层规则 `expr` 直接展开成 `orExpr`，所以 `or` 是**最先进入、最靠外**的那一层；而它的操作数（左右两边）本身是更内层的 `andExpr`——也就是说 `or` 负责把"一个个 and 表达式"串起来。**规则排得越靠外，运算符优先级越低**（最后才结合）。下一节会看到，这个"排列顺序"正是优先级的来源。
+
 ## 三、递归下降：一条规则 = 一个函数
 
 **递归下降（recursive descent）**是最直观的解析方法，名字拆开看：
