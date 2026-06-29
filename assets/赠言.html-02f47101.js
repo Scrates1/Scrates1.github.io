@@ -1,0 +1,1 @@
+import{_ as t}from"./plugin-vue_export-helper-c27b6911.js";import{o,c as _,a as e}from"./app-500d1f03.js";const c={},s=e("p",null,"且视他人之疑目如盏盏鬼火，大胆地去走自己的夜路。",-1),n=e("p",{align:"right"},"—— 史铁生《病隙碎笔》",-1),r=[s,n];function a(l,i){return o(),_("div",null,r)}const m=t(c,[["render",a],["__file","赠言.html.vue"]]);export{m as default};
