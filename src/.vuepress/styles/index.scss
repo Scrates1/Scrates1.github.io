@@ -1,0 +1,84 @@
+// place your custom styles here
+// desktop
+$laptop: 1280px ;
+#toc {
+
+  
+    @media (min-width: $laptop) {
+      .has-toc & {
+        display: block;
+      }
+    }
+  
+    @media print {
+      display: none !important;
+    }
+}
+
+.sidebar-links {
+    ul {
+  
+      &.sidebar-sub-headers {
+  
+        .has-toc & {
+          @media (min-width: $laptop) {
+            display: none;
+          }
+        }
+      }
+    }
+}
+
+.sidebar {
+    @media (min-width: $laptop) {
+        box-shadow: none;
+      }
+}
+
+.theme-container {
+  
+    &.has-toc .page.blog {
+      @media (min-width: $laptop) {
+        // fix toc padding
+        padding-inline-end: 0;
+      }
+    }
+}
+
+.toggle-sidebar-wrapper {
+
+    @media (min-width: $laptop) {
+      display: none;
+    }
+}
+
+.theme-container {
+  
+    .page {
+    
+  
+      @media (min-width: $laptop) {
+        padding-inline-end: calc(
+          100vw - var(--content-width) - var(--sidebar-space) - 6rem
+        );
+      }
+    }
+  // sidebar is disabled
+    &.no-sidebar {
+
+        &.has-toc {
+        .page {
+            // add padding for anchor
+            @media (min-width: $laptop) {
+            padding-inline-end: 16rem;
+            }
+        }
+        }
+    }
+}
+  
+
+  
+  
+
+  
