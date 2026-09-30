@@ -1,0 +1,138 @@
+=== JIMPLE ===
+    static tutorial.PointsToCases$Holder same(tutorial.PointsToCases$Holder)
+    {
+        tutorial.PointsToCases$Holder h;
+
+        h := @parameter0: tutorial.PointsToCases$Holder;
+
+        return h;
+    }
+
+    static 'void' alias()
+    {
+        java.lang.String $stack3;
+        tutorial.PointsToCases$Holder a, b;
+
+        a = new tutorial.PointsToCases$Holder;
+
+        specialinvoke a.<tutorial.PointsToCases$Holder: 'void' <init>()>();
+
+        b = staticinvoke <tutorial.PointsToCases: tutorial.PointsToCases$Holder same(tutorial.PointsToCases$Holder)>(a);
+
+        $stack3 = staticinvoke <tutorial.PointsToCases: java.lang.String input()>();
+
+        a.<tutorial.PointsToCases$Holder: java.lang.String f> = $stack3;
+
+        $stack3 = b.<tutorial.PointsToCases$Holder: java.lang.String f>;
+
+        staticinvoke <tutorial.PointsToCases: 'void' sink(java.lang.String)>($stack3);
+
+        return;
+    }
+
+    static 'void' separate()
+    {
+        java.lang.String $stack4;
+        tutorial.PointsToCases$Holder a, b;
+
+        a = new tutorial.PointsToCases$Holder;
+
+        specialinvoke a.<tutorial.PointsToCases$Holder: 'void' <init>()>();
+
+        b = new tutorial.PointsToCases$Holder;
+
+        specialinvoke b.<tutorial.PointsToCases$Holder: 'void' <init>()>();
+
+        $stack4 = staticinvoke <tutorial.PointsToCases: java.lang.String input()>();
+
+        a.<tutorial.PointsToCases$Holder: java.lang.String f> = $stack4;
+
+        $stack4 = b.<tutorial.PointsToCases$Holder: java.lang.String f>;
+
+        staticinvoke <tutorial.PointsToCases: 'void' sink(java.lang.String)>($stack4);
+
+        return;
+    }
+
+    static tutorial.PointsToCases$Holder make()
+    {
+        tutorial.PointsToCases$Holder $stack0;
+
+        $stack0 = new tutorial.PointsToCases$Holder;
+
+        specialinvoke $stack0.<tutorial.PointsToCases$Holder: 'void' <init>()>();
+
+        return $stack0;
+    }
+
+    static 'void' factory()
+    {
+        java.lang.String $stack2;
+        tutorial.PointsToCases$Holder h1, h2;
+
+        h1 = staticinvoke <tutorial.PointsToCases: tutorial.PointsToCases$Holder make()>();
+
+        h2 = staticinvoke <tutorial.PointsToCases: tutorial.PointsToCases$Holder make()>();
+
+        $stack2 = staticinvoke <tutorial.PointsToCases: java.lang.String input()>();
+
+        h1.<tutorial.PointsToCases$Holder: java.lang.String f> = $stack2;
+
+        $stack2 = h2.<tutorial.PointsToCases$Holder: java.lang.String f>;
+
+        staticinvoke <tutorial.PointsToCases: 'void' sink(java.lang.String)>($stack2);
+
+        return;
+    }
+
+    static tutorial.PointsToCases$Reader open()
+    {
+        tutorial.PointsToCases$FileReader $stack0;
+
+        $stack0 = new tutorial.PointsToCases$FileReader;
+
+        specialinvoke $stack0.<tutorial.PointsToCases$FileReader: 'void' <init>()>();
+
+        return $stack0;
+    }
+
+    static 'void' dispatch()
+    {
+        java.lang.String $stack1;
+        tutorial.PointsToCases$Reader service;
+
+        service = staticinvoke <tutorial.PointsToCases: tutorial.PointsToCases$Reader open()>();
+
+        $stack1 = interfaceinvoke service.<tutorial.PointsToCases$Reader: java.lang.String read()>();
+
+        staticinvoke <tutorial.PointsToCases: 'void' sink(java.lang.String)>($stack1);
+
+        return;
+    }
+
+=== POINTS-TO SETS (Spark, context-insensitive) ===
+alias | pts(a) = [new Holder @ alias:42]
+alias | pts(a.f) = [new String @ input:27]
+alias | pts(b) = [new Holder @ alias:42]
+alias | pts(b.f) = [new String @ input:27]
+separate | pts(a) = [new Holder @ separate:50]
+separate | pts(a.f) = [new String @ input:27]
+separate | pts(b) = [new Holder @ separate:51]
+separate | pts(b.f) = []
+factory | pts(h1) = [new Holder @ make:57]
+factory | pts(h1.f) = [new String @ input:27]
+factory | pts(h2) = [new Holder @ make:57]
+factory | pts(h2.f) = [new String @ input:27]
+dispatch | pts(service) = [new FileReader @ open:70]
+=== CALL GRAPH: targets of service.read() ===
+CHA on declared type Reader = [FileReader.read, NetReader.read]
+Spark call graph edges      = [FileReader.read]
+check ok: alias: a and b share o1
+check ok: alias: b.f sees the String allocated in input()
+check ok: separate: disjoint
+check ok: separate: b.f is empty
+check ok: factory: one site, merged
+check ok: factory: h2.f is spuriously tainted
+check ok: CHA has two targets
+check ok: Spark has one target
+ALL CHECKS PASSED

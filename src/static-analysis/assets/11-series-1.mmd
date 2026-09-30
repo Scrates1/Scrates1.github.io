@@ -1,0 +1,22 @@
+flowchart LR
+  a[变量 a]
+  b[变量 b]
+  t1[变量 t1]
+  t2[变量 t2]
+  o1["o1
+alias 中的 new Holder"]
+  o1f["o1.f
+字段位置"]
+  s["s
+input 中的 new String"]
+  a ==>|指向| o1
+  b ==>|指向| o1
+  o1 --- o1f
+  t1 ==>|指向| s
+  o1f ==>|指向| s
+  t2 ==>|指向| s
+  a -.->|"S2 copy：pts(a) ⊆ pts(b)"| b
+  t1 -.->|"S4 store：a 指向 o1 后接上"| o1f
+  o1f -.->|"S5 load：b 指向 o1 后接上"| t2
+  style o1f fill:#fff7e6,stroke:#d48806
+  linkStyle 2 stroke:#d48806,stroke-width:1px

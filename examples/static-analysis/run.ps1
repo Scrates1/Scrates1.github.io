@@ -22,6 +22,10 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Sample execution failed.' }
     & $java -cp $classpath tutorial.TaintWorklist $classes | Tee-Object -FilePath (Join-Path $output 'taint.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Taint worklist verification failed.' }
+    & $java -cp $classes tutorial.PointsToCases | Tee-Object -FilePath (Join-Path $output 'points-to-execution.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'PointsToCases execution failed.' }
+    & $java -cp $classpath tutorial.PointsToInspect $classes | Tee-Object -FilePath (Join-Path $output 'points-to.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'Spark points-to verification failed.' }
     Write-Output "Results: $output"
 } finally {
     $env:JAVA_HOME = $oldJavaHome

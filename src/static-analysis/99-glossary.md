@@ -133,4 +133,24 @@ category:
 | 稀疏化 | sparse analysis | 事实只在定义与使用之间传播 | SVF |
 | 按需求解 | demand-driven analysis | 只从查询点出发探索 | Boomerang |
 
+## 第 11 篇：指针分析
+
+| 术语 | 英文 | 一句话解释 | 在例子中 |
+| :--- | :--- | :--- | :--- |
+| 指针分析 / 指向分析 | pointer analysis / points-to analysis | 计算每个引用变量可能指向哪些对象 | 判断 a、b 是否指向同一个 Holder |
+| 分配点抽象 | allocation-site abstraction | 用每处 `new` 代表它创建的全部对象 | `new Holder()` 记为 o1 |
+| 抽象对象 / 堆抽象 | abstract object / heap abstraction | 分析中代表一组运行时对象的记号及其划分方式 | o1、s |
+| 指向集合 | points-to set, pts(x) | x 可能指向的抽象对象集合 | `pts(b)={o1}` |
+| 可能别名 | may alias | 两个变量的指向集合有交集 | a、b 都含 o1 |
+| Andersen 式 / 基于包含 | Andersen-style / inclusion-based | 用 `⊆` 约束表达 new、copy、store、load 四类语句 | `pts(a) ⊆ pts(b)` |
+| 基于等价 | equality-based (Steensgaard) | 把拷贝两端合并为一个节点，快但粗 | 未采用 |
+| 流不敏感 | flow-insensitive | 忽略语句顺序，所有语句作为同时成立的约束 | `b=a` 前后位置不影响结果 |
+| 字段敏感 | field-sensitive | 区分同一对象的不同字段 | `o1.f` 有自己的集合 |
+| on-the-fly 调用图 | on-the-fly call graph | 求解指向集合的同时按新到达对象的类型添加调用边 | `service.read()` 只连到 FileReader.read |
+| 上下文敏感堆 | context-sensitive heap / heap cloning | 分配点也带上下文，区分同一 `new` 在不同上下文创建的对象 | `o4[A]`、`o4[B]` |
+| 调用点敏感 | call-site sensitivity, k-CFA | 用最近 k 层调用点作方法的上下文 | `make[A]`、`make[B]` |
+| 对象敏感 | object sensitivity | 用接收者对象的分配点作方法的上下文 | `set[o5]`、`set[o6]` |
+| RTA | rapid type analysis | 在 CHA 基础上只保留程序中实际实例化的类 | 去掉从未 `new` 的 NetReader |
+| Spark | — | Soot 的 Andersen 式指向分析实现 | 第 11 篇第 7 节的输出 |
+
 [返回系列总览](README.md)

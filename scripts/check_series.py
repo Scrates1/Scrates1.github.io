@@ -11,7 +11,7 @@ series = root / 'src' / 'static-analysis'
 notes = root / 'notes' / 'static-analysis'
 examples = root / 'examples' / 'static-analysis'
 articles = sorted(p for p in series.glob('[0-9][0-9]-*.md') if not p.name.startswith('99'))
-assert len(articles) == 10, [p.name for p in articles]
+assert len(articles) == 11, [p.name for p in articles]
 issues = []
 link_count = 0
 docs = [*sorted(notes.rglob('*.md')), *sorted(series.rglob('*.md')), examples / 'README.md']
@@ -34,7 +34,7 @@ for p in docs:
             if prior and not re.match(r'^(?:- |\d+\. |\s{2,})', prior):
                 issues.append(f'{p}:{i + 1}: missing list separator')
 
-# Site-facing conventions for the ten lessons (see notes/static-analysis/静态分析系列规划.md §6.0).
+# Site-facing conventions for the lessons (see notes/static-analysis/静态分析系列规划.md §6.0).
 for p in articles:
     s = p.read_text(encoding='utf-8')
     assert s.startswith('---\n') and re.search(r'^title: ', s, re.M), f'Frontmatter: {p}'
@@ -120,6 +120,38 @@ assert [5 * v + 2 for v in [1, 4]] == [7, 22]
 assert join(2 + 3, 3 + 2) == 5 and join(2, 3) is TOP
 assert not any(b and not b for b in [False, True])
 assert any(b and not b2 for b, b2 in itertools.product([False, True], repeat=2))
+
+# Chapter 11: Andersen-style constraint solving (flow-insensitive, field-sensitive, context-insensitive).
+def andersen(news, copies, stores, loads):
+    pts = {}; edges = {}
+    for x, o in news: pts.setdefault(x, set()).add(o)
+    for x, y in copies: edges.setdefault(y, set()).add(x)
+    work = [x for x, _ in news]; trace = []
+    while work:
+        n = work.pop(0); trace.append(n); sources = [n]
+        for x, f, y in stores:          # x.f = y: connect y -> o.f for every o in pts(x)
+            if x == n:
+                for o in pts.get(n, ()): edges.setdefault(y, set()).add((o, f)); sources.append(y)
+        for y, x, f in loads:           # y = x.f: connect o.f -> y for every o in pts(x)
+            if x == n:
+                for o in pts.get(n, ()): edges.setdefault((o, f), set()).add(y); sources.append((o, f))
+        for src in sources:
+            for m in edges.get(src, ()):
+                before = set(pts.get(m, set())); pts[m] = before | pts.get(src, set())
+                if pts[m] != before and m not in work: work.append(m)
+    return pts, trace
+alias, alias_trace = andersen([('a', 'o1'), ('t1', 's')], [('b', 'a')], [('a', 'f', 't1')], [('t2', 'b', 'f')])
+assert alias['b'] == {'o1'} and alias[('o1', 'f')] == {'s'} and alias['t2'] == {'s'}, alias
+assert alias_trace == ['a', 't1', 'b', ('o1', 'f'), 't2'], alias_trace
+separate, _ = andersen([('a', 'o1'), ('b', 'o3'), ('t1', 's')], [], [('a', 'f', 't1')], [('t2', 'b', 'f')])
+assert separate.get('t2', set()) == set() and separate[('o1', 'f')] == {'s'}, separate
+factory, _ = andersen([('r', 'o4'), ('t1', 's')], [('ret', 'r'), ('h1', 'ret'), ('h2', 'ret')],
+                      [('h1', 'f', 't1')], [('t2', 'h2', 'f')])
+assert factory['h1'] == factory['h2'] == {'o4'} and factory['t2'] == {'s'}, factory
+# Context-sensitive heap: the two returns carry distinct allocation labels.
+heap_ctx, _ = andersen([('rA', 'o4A'), ('rB', 'o4B'), ('t1', 's')], [('h1', 'rA'), ('h2', 'rB')],
+                       [('h1', 'f', 't1')], [('t2', 'h2', 'f')])
+assert heap_ctx.get('t2', set()) == set(), heap_ctx
 assert not issues, '\n'.join(issues)
 report = {'articles': len(articles), 'markdown_files_checked': len(docs), 'local_links': link_count,
           'svg_files': len(list((series / 'assets').glob('*.svg'))), 'lattice_layout': 'PASS',
