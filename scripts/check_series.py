@@ -143,15 +143,23 @@ def andersen(news, copies, stores, loads):
 alias, alias_trace = andersen([('a', 'o1'), ('t1', 's')], [('b', 'a')], [('a', 'f', 't1')], [('t2', 'b', 'f')])
 assert alias['b'] == {'o1'} and alias[('o1', 'f')] == {'s'} and alias['t2'] == {'s'}, alias
 assert alias_trace == ['a', 't1', 'b', ('o1', 'f'), 't2'], alias_trace
-separate, _ = andersen([('a', 'o1'), ('b', 'o3'), ('t1', 's')], [], [('a', 'f', 't1')], [('t2', 'b', 'f')])
+separate, _ = andersen([('a', 'o1'), ('b', 'o2'), ('t1', 's')], [], [('a', 'f', 't1')], [('t2', 'b', 'f')])
 assert separate.get('t2', set()) == set() and separate[('o1', 'f')] == {'s'}, separate
-factory, _ = andersen([('r', 'o4'), ('t1', 's')], [('ret', 'r'), ('h1', 'ret'), ('h2', 'ret')],
+factory, _ = andersen([('ret', 'o3'), ('t1', 's')], [('h1', 'ret'), ('h2', 'ret')],
                       [('h1', 'f', 't1')], [('t2', 'h2', 'f')])
-assert factory['h1'] == factory['h2'] == {'o4'} and factory['t2'] == {'s'}, factory
+assert factory['h1'] == factory['h2'] == {'o3'} and factory['t2'] == {'s'}, factory
 # Context-sensitive heap: the two returns carry distinct allocation labels.
-heap_ctx, _ = andersen([('rA', 'o4A'), ('rB', 'o4B'), ('t1', 's')], [('h1', 'rA'), ('h2', 'rB')],
+heap_ctx, _ = andersen([('retA', 'o3A'), ('retB', 'o3B'), ('t1', 's')], [('h1', 'retA'), ('h2', 'retB')],
                        [('h1', 'f', 't1')], [('t2', 'h2', 'f')])
 assert heap_ctx.get('t2', set()) == set(), heap_ctx
+# set example: one shared copy of set (insensitive) versus a copy per receiver (object-sensitive).
+shared, _ = andersen([('p', 'o4'), ('q', 'o5'), ('t1', 's'), ('c0', 'c')],
+                     [('this', 'p'), ('this', 'q'), ('v', 't1'), ('v', 'c0')], [('this', 'f', 'v')], [('t2', 'q', 'f')])
+assert shared['t2'] == {'s', 'c'}, shared
+per_recv, _ = andersen([('p', 'o4'), ('q', 'o5'), ('t1', 's'), ('c0', 'c')],
+                       [('this4', 'p'), ('this5', 'q'), ('v4', 't1'), ('v5', 'c0')],
+                       [('this4', 'f', 'v4'), ('this5', 'f', 'v5')], [('t2', 'q', 'f')])
+assert per_recv['t2'] == {'c'}, per_recv
 assert not issues, '\n'.join(issues)
 report = {'articles': len(articles), 'markdown_files_checked': len(docs), 'local_links': link_count,
           'svg_files': len(list((series / 'assets').glob('*.svg'))), 'lattice_layout': 'PASS',

@@ -147,9 +147,11 @@ category:
 | 流不敏感 | flow-insensitive | 忽略语句顺序，所有语句作为同时成立的约束 | `b=a` 前后位置不影响结果 |
 | 字段敏感 | field-sensitive | 区分同一对象的不同字段 | `o1.f` 有自己的集合 |
 | on-the-fly 调用图 | on-the-fly call graph | 求解指向集合的同时按新到达对象的类型添加调用边 | `service.read()` 只连到 FileReader.read |
-| 上下文敏感堆 | context-sensitive heap / heap cloning | 分配点也带上下文，区分同一 `new` 在不同上下文创建的对象 | `o4[A]`、`o4[B]` |
+| 上下文敏感堆 | context-sensitive heap / heap cloning | 分配点也带上下文，区分同一 `new` 在不同上下文创建的对象 | `o3[A]`、`o3[B]` |
 | 调用点敏感 | call-site sensitivity, k-CFA | 用最近 k 层调用点作方法的上下文 | `make[A]`、`make[B]` |
-| 对象敏感 | object sensitivity | 用接收者对象的分配点作方法的上下文 | `set[o5]`、`set[o6]` |
+| 对象敏感 | object sensitivity | 用接收者对象的分配点作方法的上下文 | `set[o4]`、`set[o5]` |
+| 混合上下文敏感 | hybrid context-sensitivity | 虚调用用对象上下文，静态调用用调用点上下文 | 静态 `fill` 用调用点、`set` 用接收者 |
+| 按需求解（别名） | demand-driven alias analysis | 从查询点出发只求解相关的字段与调用括号匹配 | Boomerang |
 | RTA | rapid type analysis | 在 CHA 基础上只保留程序中实际实例化的类 | 去掉从未 `new` 的 NetReader |
 | Spark | — | Soot 的 Andersen 式指向分析实现 | 第 11 篇第 7 节的输出 |
 

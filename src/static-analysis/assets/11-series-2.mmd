@@ -1,23 +1,23 @@
 flowchart LR
   subgraph CS[1-调用点 + 上下文敏感堆：分配点带调用点]
     direction LR
-    g1[h1] ==> oA["o4[A]"]
-    g2[h2] ==> oB["o4[B]"]
-    oA --- oAf["o4[A].f"]
-    oB --- oBf["o4[B].f
+    g1[h1] ==> oA["o3[A]"]
+    g2[h2] ==> oB["o3[B]"]
+    oA --- oAf["o3[A].f"]
+    oB --- oBf["o3[B].f
 空集"]
     oAf ==> s2["s"]
     oBf -.->|"load 到 sink：无对象"| k2[sink]
   end
   subgraph CI[上下文不敏感：一个分配点]
     direction LR
-    h1[h1] ==> o4["o4
+    h1[h1] ==> o3["o3
 make 中的 new Holder"]
-    h2[h2] ==> o4
-    o4 --- o4f["o4.f"]
-    o4f ==> s1["s"]
-    o4f -.->|"load 到 sink：误报"| k1[sink]
+    h2[h2] ==> o3
+    o3 --- o3f["o3.f"]
+    o3f ==> s1["s"]
+    o3f -.->|"load 到 sink：误报"| k1[sink]
   end
-  style o4f fill:#fff7e6,stroke:#d48806
+  style o3f fill:#fff7e6,stroke:#d48806
   style oAf fill:#fff7e6,stroke:#d48806
   style oBf fill:#f0f0f0,stroke:#999999,stroke-dasharray:5 3
