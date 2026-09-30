@@ -28,7 +28,7 @@ category:
 | 路径敏感 | path-sensitive | 分析区分不同分支条件下的状态 | 分别保存 `(flag=true, {x,y})` 与 `(flag=false, {x})` |
 | may / must | may / must analysis | 事实“可能成立”还是“所有路径都成立” | 可能有污点 / 保证已初始化 |
 
-## 第 02 篇：程序表示
+## 第 02 篇：编译流程与分析工具
 
 | 术语 | 英文 | 一句话解释 | 在例子中 |
 | :--- | :--- | :--- | :--- |
@@ -38,8 +38,11 @@ category:
 | 控制流图 | CFG, control-flow graph | 节点是语句或基本块，边是可能的执行转移 | n1…n7 与 n4→n5、n4→n6 |
 | 基本块 | basic block | 只能从块首进入、块末离开的连续语句 | B1={n1…n4} |
 | 字节码 | bytecode | JVM 执行的指令序列 | `aload_1; astore_2` 对应 `y=x` |
+| 三地址码 | three-address code | 每条语句最多一个运算、三个操作数的 IR 形式 | Jimple 的 `y = x;` |
+| 操作数栈 | operand stack | JVM 暂存中间值的栈，字节码指令在其上取放数据 | `input()` 的返回值先在栈上，再 `astore_1` |
+| 构建捕获 | build capture | 包裹构建命令、监控每次编译器调用以取得真实编译上下文 | Coverity 的 `cov-build` |
 
-## 第 03 篇：数据流传播
+## 第 03 篇：数据流传播与工作列表
 
 | 术语 | 英文 | 一句话解释 | 在例子中 |
 | :--- | :--- | :--- | :--- |
@@ -54,57 +57,69 @@ category:
 | 术语 | 英文 | 一句话解释 | 在例子中 |
 | :--- | :--- | :--- | :--- |
 | 偏序 | partial order | 自反、反对称、传递的比较关系，允许有元素不可比 | 本系列 `a ⊑ b` 表示 a 至少和 b 一样精确 |
+| 全序 | total order | 任意两个元素都可比较的偏序 | 整数上的 `≤` |
+| 幂集 | power set, 𝒫 | 一个集合的所有子集组成的集合 | `𝒫({x,y})` 有四个元素 |
+| 上界 | upper bound | 位于两个元素上方或与之相等的元素 | `{x,y}` 是 `{x}`、`{y}` 的上界 |
 | 格 | lattice | 任意两元素都有最小上界和最大下界的偏序集 | `𝒫({x,y})` |
+| 完全格 | complete lattice | 任意子集都有最小上界和最大下界的格；有限格自动满足 | `𝒫({x,y})` |
 | Join / 最小上界 | join, least upper bound, ⊔ | 能同时容纳两边、又不多容的最小结果 | 污点：并集；初始化保证：交集 |
 | Meet / 最大下界 | meet, greatest lower bound, ⊓ | Join 的对偶 | 污点：交集 |
 | ⊤ / ⊥ | top / bottom | 格中最粗 / 最精确的元素 | 污点域：`{x,y}` / `∅` |
 | 单调 | monotone | 输入按偏序变粗，输出不会变精 | `y="safe"` 的规则单调但会删事实 |
-| 不动点 | fixed point | 再算一遍也不变的状态 | 循环头稳定在 `{x,y,z}` |
-| 上升链 / 有限高度 | ascending chain / finite height | 严格变粗的序列 / 这种序列有长度上限 | `{x} ⊏ {x,y} ⊏ {x,y,z}` |
-| 加宽 | widening, ∇ | 强行跳到更粗的元素以迫使迭代停止 | `[0,1] ∇ [0,2] = [0,+∞)` |
+| 不动点 / 最小不动点 | fixed point / least fixed point | 再算一遍也不变的状态 / 其中最精确的那个 | 循环头稳定在 `{x,y,z}` |
+| 上升链 / 有限高度 | ascending chain / finite height | 严格变粗的序列 / 这种序列有长度上限 | `{x} ⊑ {x,y} ⊑ {x,y,z}` |
+| 区间域 | interval domain | 每个变量记一个 `[下界, 上界]` 的数值抽象域，高度无限 | `[0,2]` |
+| 加宽 | widening, ∇ | Join 之后再把变大的一侧界强行推到无穷，以迫使迭代停止 | `[0,1] ∇ [0,2] = [0,+∞)` |
 | 序对偶 | order duality | 把偏序整个反过来，Join 与 Meet 互换 | 其他教材把并集叫 Meet 的原因 |
 
-## 第 05 篇：常量传播
+## 第 05 篇：常量传播与表达式求值
 
 | 术语 | 英文 | 一句话解释 | 在例子中 |
 | :--- | :--- | :--- | :--- |
-| 平坦格 | flat lattice | 底、一层互不可比的元素、顶三层结构 | `⊥ ⊑ 3 ⊑ ⊤` |
+| 平坦格 | flat lattice | 底、一层互不可比的元素、顶三层结构；最长链只有三个元素 | `⊥ ⊑ 3 ⊑ ⊤` |
 | 环境 | environment, ρ | 变量到抽象值的映射 | `ρ={a↦3,b↦7}` |
 | 常量传播 / 折叠 | constant propagation / folding | 分析出常量 / 用分析结果改写程序 | 得出 b=7 / 把 `3+4` 改成 `7` |
 
-## 第 06 篇：过程间分析
+## 第 06 篇：调用关系与上下文
 
 | 术语 | 英文 | 一句话解释 | 在例子中 |
 | :--- | :--- | :--- | :--- |
+| 过程间分析 | interprocedural analysis | 跨过方法边界、处理调用与返回的分析 | 追踪 a 经 id 到 b |
 | 调用图 | call graph | 节点是方法，边是“可能调用” | main→id |
 | 过程间控制流图 | ICFG, interprocedural CFG | 把各方法的 CFG 用调用边、返回边缝在一起 | A→id 入口，id 出口→retA |
 | 调用点 / 返回点 | call site / return site | 发出调用的位置 / 调用返回后继续执行的位置 | A / retA |
+| 虚调用 | virtual call | 实际目标由接收者运行时类型决定的调用 | `service.read()` |
 | 类层次分析 | CHA, class hierarchy analysis | 只按声明类型与子类关系确定调用目标 | `service.read()` 得到两个目标 |
+| RTA | rapid type analysis | 在 CHA 基础上只保留程序中实际实例化的类 | 去掉从未 `new` 的 NetReader |
 | 基于指向的调用图 | points-to-based call graph | 先算变量指向哪些对象，再确定目标 | 收缩为 `FileReader.read` |
 | 上下文敏感 | context-sensitive | 区分同一方法在不同调用处的分析结果 | A 的返回不污染 B 的 c |
 | 流敏感 | flow-sensitive | 区分语句顺序 | `x=input(); x="safe";` 后 x 干净 |
+| 路径敏感（06 的例子） | path-sensitive | 区分分支条件及其关联，定义见第 01 篇 | `if (flag) … if (!flag) sink(y)` |
 | 调用到返回边 / 旁路 | call-to-return edge | 调用者中不经被调方法传播的事实所走的边 | 执行 A 时 a 的污点直接保留 |
 | 摘要 | summary | 方法“输入怎样影响输出”的可复用记录 | id：入口 p 有污点则返回值有污点 |
 | 净化 | sanitizer | 按约定消除污点的操作 | `escape(x)` |
 | 隐式流 | implicit flow | 值通过条件判断而非赋值影响另一变量 | `if (x.equals("a")) y="a";` |
 
-## 第 07 篇：IFDS
+## 第 07 篇：IFDS 事实传播
 
 | 术语 | 英文 | 一句话解释 | 在例子中 |
 | :--- | :--- | :--- | :--- |
 | IFDS | Interprocedural Finite Distributive Subset | 满足分配律的有限事实集合问题的过程间求解框架 | 本系列的污点传播 |
+| 流函数 | flow function | IFDS 文献对转移函数的叫法 | `y=x` 的流函数 |
 | 分配律 | distributivity | 先合并再转移与分别转移再合并结果相同 | `f(A∪B)=f(A)∪f(B)` |
 | 辅助事实 Λ | zero fact, Λ | 表示“无条件成立”的人为事实，用来生成新事实 | `Λ→x` 表示 `x=input()` |
 | 表示关系 | representation relation | 一条语句的流函数拆成的单事实边集合 | `y=x`：`x→x`、`x→y` |
 | 爆炸超图 | ESG, exploded supergraph | 节点是 `(程序点, 事实)`，边是单事实传播 | `(A 之前, a) → (entry, p)` |
-| 四类流函数 | normal / call / return / call-to-return | 方法内 / 实参到形参 / 返回值到接收变量 / 旁路 | 见 07 第 5 节表 |
-| 路径边 | path edge | “从方法入口带着 d₀ 进来，现在在 n 处是 d” | `〈p, exit, ret〉` |
+| 四类流函数 | normal / call / return / call-to-return | 方法内 / 实参到形参 / 返回值到接收变量 / 旁路 | 见第 07 篇第 5 节表 |
+| 路径边 | path edge | “从方法入口带着 d₁ 进来，现在在 n 处是 d₂” | `〈p, exit, ret〉` |
 | Incoming | incoming | 等待某个被调入口事实结果的调用记录 | A 等待 `(id, p)` |
-| 可实现路径 | realizable path | 调用与返回按栈匹配的路径 | A 进 id 必须回到 retA |
-| MRP / MOP | meet over all realizable / all paths | 只沿可实现路径合并 / 沿所有路径合并 | IFDS 求的是 MRP |
+| 出口摘要 Summary | summary edge | 某入口事实能产生哪些出口事实；到达出口的路径边 | `p→ret` |
+| tabulation 算法 | tabulation | IFDS 的求解算法，逐条登记路径边与摘要 | 第 07 篇第 7 节伪代码 |
+| 可实现路径 | realizable path | 每次返回都回到匹配调用点的路径，允许有尚未返回的调用 | A 进 id 必须回到 retA |
+| MRP / MOP | meet over all realizable / all paths | 只沿可实现路径合并 / 沿所有路径合并 | IFDS 求的是 MRP，分配律成立时精确等于它 |
 | CFL 可达性 | CFL-reachability | 路径上标签串须属于某个上下文无关语言 | 调用返回的括号匹配 |
 
-## 第 08 篇：IDE
+## 第 08 篇：IDE 值传播
 
 | 术语 | 英文 | 一句话解释 | 在例子中 |
 | :--- | :--- | :--- | :--- |
@@ -112,28 +127,32 @@ category:
 | 边函数 | edge function | 一条事实边上值怎样变 | `t↦t+2` |
 | 跳转函数 | jump function | 从方法入口到某个目标事实的所有边函数组合结果 | `〈p, exit, ret, t↦5(t+2)〉` |
 | 函数组合 | composition, ∘ | 先做 f 再做 g 写作 `g∘f` | `5(t+2)` |
+| 逐点合并 | pointwise join | 两条路径的函数在每个输入上分别 Join | `(j₁ ⊔ j₂)(t) = j₁(t) ⊔ j₂(t)` |
+| 线性常量传播 | linear constant propagation | 边函数限定为一元线性函数 `t↦a·t+b` 的常量传播，是 IDE 原论文的示例 | calc 的加 2、乘 5 |
 | 两阶段求解 | phase I / phase II | 先算稳定的跳转函数，再代入入口值 | 先得 j，再算 j(1)、j(4) |
 
-## 第 09 篇：符号执行
+## 第 09 篇：符号执行与 Clang
 
 | 术语 | 英文 | 一句话解释 | 在例子中 |
 | :--- | :--- | :--- | :--- |
-| 符号值 | symbolic value | 不知道具体值时先起的名字 | β 表示 b 的值 |
+| 符号执行 | symbolic execution | 用符号值代替未知输入、沿路径累积条件的分析方式 | 本篇整体 |
+| 符号值 | symbolic value | 不知道具体值时先起的名字 | β 表示 flag 的值 |
 | 路径条件 | path condition | 走到当前位置必须满足的约束合取 | `β ∧ ¬β` |
 | 不可行路径 | infeasible path | 路径条件不可满足的路径 | 带污点进入 sink 的那条 |
-| ProgramState / ExplodedNode | — | Clang 中一条路径的状态 / 图中“位置加状态”的节点 | 见 09 第 4 节表 |
+| ProgramState / ExplodedNode / ExplodedGraph | — | Clang 中一条路径的状态 / “位置加状态”的节点 / 由这些节点组成的探索图 | 见第 09 篇第 4 节表 |
 
-## 第 10 篇：求解器工程
+## 第 10 篇：IDE 求解器工程优化
 
 | 术语 | 英文 | 一句话解释 | 在例子中 |
 | :--- | :--- | :--- | :--- |
 | 跳转函数表布局 | jump function layout | 用什么嵌套结构存 `(n,d₁,d₂)→f` | JF_ND、JF_N |
 | 批处理 | batching | 固定外层键后一次处理多条更新 | 复用 `table[n]` |
-| 条目回收 | garbage collection of jump functions | 方法内部条目在确认不再需要后释放 | 保留 `p→ret`，回收 `p→a` |
-| 稀疏化 | sparse analysis | 事实只在定义与使用之间传播 | SVF |
+| 回收（条目回收，GC） | garbage collection of jump functions | 方法内部条目在确认不再需要后释放；源自 Arzt 2021 | 保留 `p→ret`，回收 `p→a` |
+| 感兴趣节点 | interesting nodes | 客户端要查询值、因此不能回收的程序点 | 类型状态分析的状态转移语句 |
+| 稀疏化 | sparse analysis | 事实只在定义与使用之间传播 | He 等 2020 对 IFDS 的稀疏化 |
 | 按需求解 | demand-driven analysis | 只从查询点出发探索 | Boomerang |
 
-## 第 11 篇：指针分析
+## 第 11 篇：对象、别名与指针分析
 
 | 术语 | 英文 | 一句话解释 | 在例子中 |
 | :--- | :--- | :--- | :--- |
@@ -152,7 +171,7 @@ category:
 | 对象敏感 | object sensitivity | 用接收者对象的分配点作方法的上下文 | `set[o4]`、`set[o5]` |
 | 混合上下文敏感 | hybrid context-sensitivity | 虚调用用对象上下文，静态调用用调用点上下文 | 静态 `fill` 用调用点、`set` 用接收者 |
 | 按需求解（别名） | demand-driven alias analysis | 从查询点出发只求解相关的字段与调用括号匹配 | Boomerang |
-| RTA | rapid type analysis | 在 CHA 基础上只保留程序中实际实例化的类 | 去掉从未 `new` 的 NetReader |
+| 差分传播 | difference propagation | 工作列表只传播新到达的对象，不重传整个集合 | 第 11 篇第 3.4 节伪代码 |
 | Spark | — | Soot 的 Andersen 式指向分析实现 | 第 11 篇第 7 节的输出 |
 
 [返回系列总览](README.md)

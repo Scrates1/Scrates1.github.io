@@ -19,11 +19,11 @@ tag:
 
 对[上一例](01-goals-and-abstraction.md)中的 `y=x`，人可以直接看出变量之间的赋值关系。分析器也需要这样的表示，还需要知道分支后会执行哪条语句。Soot 可以从 Java 字节码构建 Jimple，再建立控制流图，供分析规则使用。
 
-以下涉及三个缩写：IR 是中间表示，AST 是抽象语法树，CFG 是控制流图。
+以下涉及三个缩写：**IR（intermediate representation，中间表示）**是编译器或分析器内部使用的程序形式；**AST（abstract syntax tree，抽象语法树）**按源码语法结构组织程序；**CFG（control-flow graph，控制流图）**记录语句之间可能的执行转移。
 
 ## 1. 编译六阶段与前端、中端、后端
 
-六阶段描述编译器完成的工作；前端、中端、后端按职责把这些工作归组。下面采用典型划分，实际工具的阶段边界可以不同。
+六阶段描述编译器完成的工作；前端、中端、后端按职责把这些工作归组。下面采用编译原理教材的典型划分（见龙书第 1 章，[Aho 等，Compilers: Principles, Techniques, and Tools](https://suif.stanford.edu/dragonbook/)），实际工具的阶段边界可以不同。
 
 ![编译六阶段与前端、中端、后端](assets/02-01-compiler-stages.svg)
 
@@ -50,7 +50,7 @@ Soot 提供读取类和方法、转换程序表示、构建分析图等基础设
 
 **图 2：Soot 的字节码输入路线。** 实线表示处理或结果流，虚线表示可选输出。这里 javac 先生成字节码，Soot 的前端再将字节码转换成 Jimple。
 
-Jimple 是有类型的三地址 IR，第 3 节会展示它如何简化对字节码的分析。Soot 也支持程序变换与字节码输出，具备后端职责；纯分析任务可以在得到结果时结束。[Soot 框架论文](https://soot-oss.github.io/soot/resources/lblh11soot.pdf)
+Jimple 是有类型的三地址（three-address）IR：每条语句最多一个运算、最多三个操作数。Soot 也支持程序变换与字节码输出，具备后端职责；纯分析任务可以在得到结果时结束。[Soot 框架论文](https://soot-oss.github.io/soot/resources/lblh11soot.pdf)
 
 生成 Jimple 后，分析作者仍需定义：
 
@@ -104,11 +104,11 @@ public static void run(boolean flag) {
 17: return
 ```
 
-左边的数字是字节码偏移量，不是源码行号。本例是静态方法，局部变量槽 0、1、2 分别保存 flag、x、y。调用 input 后，返回值先位于操作数栈，再由 `astore_1` 存入 x 对应的槽。
+左边的数字是字节码偏移量，不是源码行号。本例是静态方法，局部变量槽 0、1、2 分别保存 flag、x、y（实例方法的槽 0 是 `this`）。调用 input 后，返回值先位于操作数栈（operand stack，JVM 用来暂存中间值的栈），再由 `astore_1` 存入 x 对应的槽。
 
 偏移 11、12 的 `aload_1` 把 x 加载到栈上，`astore_2` 再把它存入 y。这两条指令合起来表达源码中的 `y=x`。直接分析字节码时，需要跟踪栈上的值，才能恢复这层赋值关系。
 
-偏移 7、8 则负责分支：加载 flag，值为零时跳到偏移 13，直接准备调用 sink；否则继续执行复制。这里跳转的是“跳过 if 语句体”的路线，因此条件方向与源码表面写法相反。
+偏移 7、8 则负责分支：加载 flag（JVM 把 boolean 当作 int 的 0/1 存放，所以用 `iload`），值为零时跳到偏移 13，直接准备调用 sink；否则继续执行复制。这里跳转的是“跳过 if 语句体”的路线，因此条件方向与源码表面写法相反。
 
 ### 3.3 Jimple：把变量依赖和跳转直接写出来
 
@@ -128,13 +128,15 @@ n7  return;
 
 | 写法 | 在本例中的含义 |
 | :--- | :--- |
-| `flag := @parameter0: boolean` | 将第 0 个参数绑定到局部变量 flag；`:=` 是身份语句中的绑定记号 |
+| `flag := @parameter0: boolean` | 将第 0 个参数绑定到局部变量 flag；`:=` 是标识语句（IdentityStmt）中的绑定记号 |
 | `x = ...`、`y = x` | 普通赋值，操作数关系直接可见 |
 | `staticinvoke` | 调用静态方法；后面的尖括号给出方法签名 |
 | `<tutorial.BranchFlow: void sink(java.lang.String)>` | 类名、返回类型、方法名和参数类型；表示 BranchFlow 中接收 String、返回 void 的 sink |
 | `if ... goto n6` | 条件成立时跳到 n6，不成立时继续下一条语句 |
 
-Jimple 直接写出 `y=x` 和调用结果的接收变量，复杂表达式也会拆成使用临时变量的简单操作。分析规则可以直接读取这些有类型的操作数，无需再恢复操作数栈。[Jimple 官方说明](https://soot-oss.github.io/SootUp/v1.3.0/jimple/)
+Jimple 直接写出 `y=x` 和调用结果的接收变量，复杂表达式也会拆成使用临时变量的简单操作。分析规则可以直接读取这些有类型的操作数，无需再恢复操作数栈。[SootUp 的 Jimple 说明](https://soot-oss.github.io/SootUp/v1.3.0/jimple/)（新一代 Soot 的文档，语法与 Soot 4.x 的 Jimple 基本一致）
+
+顺带对比 AST：源码 `if (flag) { y = x; }` 在 AST 中是一个 `IfStmt` 节点，两个子节点分别是条件 `flag` 和 then 块，块里再挂一个赋值节点——树的形状就是源码的嵌套结构。Jimple 已经把这层嵌套拆平：n4 是一条带跳转目标的条件语句，n5 是一条普通赋值，“哪条语句在哪个块里”这样的结构信息不再保留，换来的是每条语句都能独立处理。
 
 ### 3.4 CFG：下一步可能执行哪条语句？
 
@@ -160,7 +162,7 @@ flag=false：n1 → n2 → n3 → n4 ───────→ n6 → n7
 
 图中的入口是 n1，正常出口是 n7。
 
-实际输出中的后继关系与图一致：
+实际输出中的后继关系与图一致。下面按 n 编号整理了 graph.txt 中的 `successors` 列，去掉了语句文本：
 
 ```text
 n4: successors = [n5, n6]
@@ -169,11 +171,11 @@ n6: successors = [n7]
 n7: successors = []
 ```
 
-`BriefUnitGraph` 不含异常控制流边，对应本例只观察正常路径的范围。[BriefUnitGraph API](https://soot-oss.github.io/soot/docs/4.3.0/jdoc/soot/toolkits/graph/BriefUnitGraph.html)
+`BriefUnitGraph` 不含异常控制流边，对应本例只观察正常路径的范围。[BriefUnitGraph API](https://soot-oss.github.io/soot/docs/4.7.1/jdoc/soot/toolkits/graph/BriefUnitGraph.html)
 
 ### 3.5 基本块：把连续执行的语句收成一组
 
-语句级图便于逐步讲解，但有些节点之间只有一条顺序路线。可以把这样的连续语句组成基本块：在所选控制流模型中，控制从块首进入，块内没有分支或从外部跳入中间的路径，到块末再决定后续去向。一个块可以有多个后继，因此“单出口位置”不等于“只有一条出边”。
+语句级图便于逐步讲解，但有些节点之间只有一条顺序路线。可以把这样的连续语句组成**基本块（basic block）**：在所选控制流模型中，控制从块首进入，块内没有分支或从外部跳入中间的路径，到块末再决定后续去向。直白地说，基本块就是“一口气从头执行到尾、中途既不会跳出也不会有人跳进来”的一段语句。一个块可以有多个后继，因此“单出口位置”不等于“只有一条出边”。
 
 本例的 `BriefBlockGraph` 实际给出三个块：
 
@@ -195,7 +197,7 @@ AST 侧重源码结构，Jimple 显式表达操作，CFG 则组织这些操作�
 
 ## 4. Coverity：捕获构建上下文
 
-对 C/C++ 等编译型项目，同一份源文件在不同宏定义、头文件路径和编译选项下可能表示不同的程序。Coverity 的**构建捕获模式**通过监控编译器调用，取得这些构建信息，再用相应的 Coverity 编译器重放处理，建立供分析使用的中间表示。[构建捕获命令](https://docs.blackduck.com/r/coverity/latest/coverity-documentation/coverity-capture.html)、[官方架构白皮书](https://www.blackduck.com/content/dam/black-duck/en-us/whitepapers/wp-build-security-sdlc-coverity.pdf)
+对 C/C++ 等编译型项目，同一份源文件在不同宏定义、头文件路径和编译选项下可能表示不同的程序。Coverity 的**构建捕获（build capture）**模式用 `cov-build` 包裹正常的构建命令，监控其中每一次编译器调用，取得文件、选项和环境，再让 Coverity 自己的编译器前端按同样的选项处理这些源文件，建立供分析使用的中间表示。Java 项目同样用它包裹 `mvn`、`javac` 等命令。[构建捕获命令](https://docs.blackduck.com/r/coverity/latest/coverity-documentation/coverity-capture.html)、[官方架构白皮书](https://www.blackduck.com/content/dam/black-duck/en-us/whitepapers/wp-build-security-sdlc-coverity.pdf)
 
 ![Coverity 构建捕获与分析路线](assets/02-03-coverity.svg)
 
@@ -222,7 +224,7 @@ Clang 把源码处理为 AST 后，两条路线在此分开：
 
 Clang 内部的 `CodeGen` 生成 LLVM IR，对应④；LLVM 后端生成目标代码，对应⑥。“代码生成”在这两处指向不同的产物。[Clang CodeGen 说明](https://clang.llvm.org/docs/InternalsManual.html)
 
-Static Analyzer 的引擎进行路径敏感的符号执行，检查器参与状态处理和问题报告。它能探索多少行为、排除多少不可行路径，取决于模型和探索限制。状态、约束和检查器的执行过程放到第 09 篇深入说明。[检查器开发手册](https://clang-analyzer.llvm.org/checker_dev_manual)
+Static Analyzer 的引擎进行路径敏感的符号执行（symbolic execution），检查器参与状态处理和问题报告。它能探索多少行为、排除多少不可行路径，取决于模型和探索限制。状态、约束和检查器的执行过程放到[第 09 篇](09-symbolic-execution-clang.md)深入说明。[检查器开发手册](https://clang-analyzer.llvm.org/checker_dev_manual)
 
 ## 6. 复现程序表示与控制流
 
@@ -238,6 +240,6 @@ Static Analyzer 的引擎进行路径敏感的符号执行，检查器参与状�
 - 基本块只是把顺序执行的语句打包，不改变程序。
 - Coverity 靠监控构建过程取得 C/C++ 的真实编译上下文；Clang 在 AST 之后分成编译与 Static Analyzer 两条路线。三种工具都先建表示，再做分析。
 
-[第 03 篇](03-dataflow-and-worklist.md)在这张 CFG 上计算污点：赋值改变哪些事实，汇合点怎样合并，循环又怎样触发重算。
+下一篇在这张 CFG 上计算污点：赋值改变哪些事实，汇合点怎样合并，循环又怎样触发重算。
 
-返回[系列总览与阅读路线](README.md)。
+[上一篇：01 状态、抽象与近似](01-goals-and-abstraction.md) · [下一篇：03 数据流传播与工作列表](03-dataflow-and-worklist.md) · [返回系列总览](README.md)

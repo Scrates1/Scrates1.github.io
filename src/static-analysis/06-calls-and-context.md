@@ -17,12 +17,12 @@ tag:
 
 <!-- more -->
 
-同一个方法接受不同实参，可能产生不同结果。过程间分析需要将调用者的实参映射到形参，再把返回值送回相应的调用位置。
+同一个方法接受不同实参，可能产生不同结果。**过程间分析（interprocedural analysis）**——跨过方法边界的分析——需要将调用者的实参映射到形参，再把返回值送回相应的调用位置。
 
 ## 1. 一个方法，两次调用
 
 ```java
-int plusTwo(int p) { return p + 2; }
+static int plusTwo(int p) { return p + 2; }
 int b = plusTwo(1);   // A：返回 3
 int c = plusTwo(4);   // B：返回 6
 ```
@@ -32,7 +32,7 @@ int c = plusTwo(4);   // B：返回 6
 污点传播也有同样的问题。假设 `id` 无副作用：
 
 ```java
-String id(String p) { return p; }
+static String id(String p) { return p; }
 
 String a = input();
 String b = id(a);       // 调用点 A
@@ -45,21 +45,21 @@ sink(c);
 
 ## 2. 调用图与过程间控制流图
 
-**调用图**的节点是方法，边表示一个方法可能调用另一个方法。它用于寻找调用目标，但单靠 `caller→id` 无法表达调用点 A、B 的先后位置和返回点。
+**调用图（call graph）**的节点是方法，边表示一个方法可能调用另一个方法。它用于寻找调用目标，但单靠 `main→id` 无法表达调用点 A、B 的先后位置和返回点。
 
-**ICFG（过程间控制流图，interprocedural CFG）**把方法内部的 CFG 与调用、返回关系接起来：每个方法自己的 CFG 照旧，再用一条调用边从调用点缝到被调方法入口、一条返回边从被调方法出口缝回调用点之后的位置。图中 `retA`、`retB` 分别表示 A、B 正常返回后继续执行的位置。
+**ICFG（过程间控制流图，interprocedural CFG）**把方法内部的 CFG 与调用、返回关系接起来：每个方法自己的 CFG 照旧，再用一条调用边从**调用点（call site）**缝到被调方法入口、一条返回边从被调方法出口缝回调用点之后的位置，即**返回点（return site）**。图中 `retA`、`retB` 分别表示 A、B 正常返回后继续执行的位置。
 
 ![两个调用点共享 id 方法，返回分别匹配 retA 和 retB](assets/06-series-1.svg)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/06-series-1.mmd)
 
-图中省略了调用者内部从 retA 到 B 等顺序边，只突出调用与返回。两条返回边都存在，但合法执行有额外约束：**从 A 进入 id 的这一层调用，必须返回 retA。** 裸图遍历可以从 A 走到 id 出口再接 retB；这条路线并不对应合法的调用栈行为。
+图中省略了调用者内部从 retA 到 B 等顺序边，只突出调用与返回；两条虚线是调用者内部绕过 id 直接走到返回点的边，第 4 节解释它的作用。两条返回边都存在，但合法执行有额外约束：**从 A 进入 id 的这一层调用，必须返回 retA。** 裸图遍历可以从 A 走到 id 出口再接 retB；这条路线并不对应合法的调用栈行为。
 
 ICFG 和上下文敏感分析的背景可参见 [Static Program Analysis 第 8 章](https://cs.au.dk/~amoeller/spa/spa.pdf)。
 
 ## 3. 调用目标从哪里来
 
-上面的 id 是静态方法，目标直接写在 `staticinvoke` 指令里。Java 中大多数调用是虚调用：`service.read()` 实际执行哪个 read，取决于 service 在运行时指向哪个类的对象。调用图的边因此要靠分析确定，这一步的近似方向直接决定后面所有过程间结论的可靠性与精度。
+上面的 id 是静态方法，目标直接写在 Jimple 的 `staticinvoke`（字节码 `invokestatic`）指令里。Java 中大多数调用是**虚调用（virtual call）**：`service.read()` 实际执行哪个 read，取决于 service 在运行时指向哪个类的对象。调用图的边因此要靠分析确定，这一步的近似方向直接决定后面所有过程间结论的可靠性与精度。
 
 ```java
 interface Reader { String read(); }
@@ -70,25 +70,25 @@ Reader service = new FileReader();
 sink(service.read());
 ```
 
-**CHA（Class Hierarchy Analysis，类层次分析）**只看声明类型和类层次：service 的声明类型是 Reader，所有实现了 read 的子类型都算可能目标，得到 `{FileReader.read, NetReader.read}` 两条边。NetReader.read 返回污点，于是 sink 出现一条污点候选路径；但真实执行只会调用 FileReader.read，这是调用图过近似带来的误报。
+**CHA（Class Hierarchy Analysis，类层次分析）**只看声明类型和类层次：service 的声明类型是 Reader，所有实现了 read 的子类型都算可能目标，得到 `{FileReader.read, NetReader.read}` 两条边。NetReader.read 返回污点，于是 sink 出现一条污点候选路径；但真实执行只会调用 FileReader.read，这是调用图过近似带来的误报。（这里按源码声明类型 Reader 讨论；Soot 在构建 Jimple 时会把这个局部变量的类型收紧为 FileReader，使 CHA 也只剩一个目标，[第 11 篇](11-pointer-analysis.md)第 7 节说明了如何在示例里绕开这一点。）
 
-**基于指向信息的调用图**先分析 service 可能指向哪些对象。这里只有 `new FileReader()` 一个分配点，目标收缩为 `{FileReader.read}`，误报消失。代价是指向分析本身要遍历整个程序，而且调用图与指向信息互相依赖：要知道 service 指向什么，需要知道给它赋值的方法从哪里被调用；要知道调用目标，又需要指向信息。实际实现通常在同一轮求解中同时扩展两者。
+**基于指向的调用图（points-to-based call graph）**先分析 service 可能指向哪些对象。这里只有 `new FileReader()` 一个分配点，目标收缩为 `{FileReader.read}`，误报消失。代价是指向分析本身要遍历整个程序，而且调用图与指向信息互相依赖：要知道 service 指向什么，需要知道给它赋值的方法从哪里被调用；要知道调用目标，又需要指向信息。实际实现通常在同一轮求解中同时扩展两者。
 
 | 方法 | 需要的信息 | 边数 | 代价 |
 | :--- | :--- | :--- | :--- |
 | CHA | 类层次 | 最多；接口类型往往有大量实现 | 低 |
-| RTA | 类层次加程序中实际被实例化的类 | 较少 | 低 |
+| **RTA（Rapid Type Analysis）** | 类层次加程序中实际被实例化的类 | 较少 | 低 |
 | 基于指向 | 每个引用变量的指向集合 | 最少 | 高；需要全程序指针分析 |
 
-三者都是过近似，只是精度不同。调用图的边数直接进入[第 07 篇](07-ifds.md)复杂度中的 `|E|`；多出的边还会把更多方法的局部变量拉进传播，间接放大 `|D|`。Soot 的 `cg` 阶段同时提供 [CHA](https://soot-oss.github.io/soot/docs/4.3.0/jdoc/soot/jimple/toolkits/callgraph/CHATransformer.html) 和 [Spark 指针分析](https://soot-oss.github.io/soot/docs/4.3.0/jdoc/soot/jimple/spark/SparkTransformer.html)两种构造方式，选项见 [Soot 选项手册的 cg 部分](https://soot-oss.github.io/soot/docs/4.3.0/options/soot_options.html)；Spark 的设计见 [Lhoták 与 Hendren 的论文](https://plg.uwaterloo.ca/~olhotak/pubs/cc03.pdf)。
+RTA 在 CHA 的基础上只保留程序里确实 `new` 过的类；本例从未实例化 NetReader，RTA 也能收缩到一个目标。在不含反射、动态链接等特殊调用的模型内，三者都是过近似，只是精度不同。调用图的边数直接进入[第 07 篇](07-ifds.md)复杂度中的 `|E|`；多出的边还会把更多方法的局部变量拉进传播，间接放大 `|D|`。Soot 的 `cg` 阶段同时提供 [CHA](https://soot-oss.github.io/soot/docs/4.7.1/jdoc/soot/jimple/toolkits/callgraph/CHATransformer.html) 和 [Spark 指针分析](https://soot-oss.github.io/soot/docs/4.7.1/jdoc/soot/jimple/spark/SparkTransformer.html)两种构造方式，选项见 [Soot 选项手册的 cg 部分](https://soot-oss.github.io/soot/docs/4.7.1/options/soot_options.html)；Spark 的设计见 [Lhoták 与 Hendren 的论文](https://plg.uwaterloo.ca/~olhotak/pubs/cc03.pdf)。
 
-无论哪种方法，都有几类调用不在字节码的调用指令里直接可见：lambda 与方法引用经 `invokedynamic` 在运行时链接；`Method.invoke`、`Class.forName` 的目标由字符串决定；Servlet、Spring 一类框架回调不从 main 可达；JNI 进入原生代码后不可见。调用图缺一条边，就少一条传播路径，这就是[第 01 篇](01-goals-and-abstraction.md)3.2 节所说“遗漏一个调用目标”导致漏报的位置。这些缺口由后续规划中的覆盖边界专题专门讨论。
+无论哪种方法，都有几类调用不在字节码的调用指令里直接可见：lambda 与方法引用经 `invokedynamic` 在运行时链接；`Method.invoke`、`Class.forName(...).newInstance()` 一类反射调用的目标由字符串决定；Servlet、Spring 一类框架回调不从 main 可达；JNI 进入原生代码后不可见。调用图缺一条边，就少一条传播路径，这就是[第 01 篇](01-goals-and-abstraction.md)第 3.2 节所说“遗漏一个调用目标”导致漏报的位置。这些缺口由后续规划中的覆盖边界专题专门讨论。
 
 本篇后续仍以静态目标 id 为例，把“目标已知”作为假设。
 
 ## 4. 按一次调用跟踪变量映射
 
-用 `ret` 表示被调方法的抽象返回事实，将一次调用分为四步：
+用 `ret` 表示被调方法的抽象返回事实——把返回值当成一个名叫 ret 的临时变量。下面把每次调用单独看，将一次调用分为四步：
 
 | 阶段 | A：`b=id(a)` | B：`c=id("safe")` |
 | :--- | :--- | :--- |
@@ -103,29 +103,36 @@ sink(service.read());
 
 ## 5. 流敏感、上下文敏感与路径敏感
 
-| 敏感性 | 保留什么区别 | 能避免的问题 |
+| 敏感性 | 保留什么区别 | 不敏感时会出的问题 |
 | :--- | :--- | :--- |
-| 流敏感 | 语句顺序与程序点 | `x=input(); x="safe";` 后仍保留旧污点 |
-| 上下文敏感 | 不同调用上下文 | A 的返回污染 B 的接收变量 |
-| 路径敏感 | 分支条件及其关联 | 把同一路径上的 b 和 `!b` 都当作成立 |
+| **流敏感（flow-sensitive）** | 语句顺序与程序点 | `x=input(); x="safe";` 后仍保留旧污点 |
+| **上下文敏感（context-sensitive）** | 不同调用上下文 | A 的返回污染 B 的接收变量 |
+| **路径敏感（path-sensitive）** | 分支条件及其关联 | 把同一路径上的 flag 和 `!flag` 都当作成立 |
 
-例如：
+第 03 篇的分析已经是流敏感的；路径敏感一词在第 01 篇第 2.2 节首次出现。例如：
 
 ```java
 String y = "safe";
-if (b)  y = input();
-if (!b) sink(y);       // b 中途不变
+if (flag)  y = input();
+if (!flag) sink(y);       // flag 中途不变
 ```
 
-即使调用与返回全部匹配，丢失 b 与 `!b` 的关联仍可能导致误报。排除这条路径需要保留条件信息，第 09 篇会展开这个例子。
+即使调用与返回全部匹配，丢失 flag 与 `!flag` 的关联仍可能导致误报。排除这条路径需要保留条件信息，[第 09 篇](09-symbolic-execution-clang.md)会展开这个例子。
 
 ## 6. 摘要怎样复用，为什么递归需要迭代？
 
 可以记录 id 的一条**摘要（summary）**：**入口 p 有污点，则返回值有污点**。摘要相当于方法的使用说明书——只写“输入怎样影响输出”，不写内部过程；每个调用者拿到说明书后，代入自己的实参就能得到自己的结果。A 将 a 映射到 p，使用摘要后映射回 b。B 没有 p 的污点输入，因此这条摘要不会凭空污染 c。
 
-摘要中的输入条件让 A、B 可以复用同一份方法分析，同时得到各自的结果。
-
 递归时，方法的结果又依赖它自己的摘要。例如一个方法有直接返回 p 的分支，也有递归调用自身再返回的分支：
+
+```java
+static String idRec(String p, int k) {
+    if (k == 0) return p;
+    return idRec(p, k - 1);
+}
+```
+
+它的摘要按下面的步骤迭代得到：
 
 1. 先从直接返回分支发现 p 到返回值的关系。
 2. 将这个关系用于递归调用，产生新的候选摘要。
@@ -139,15 +146,15 @@ if (!b) sink(y);       // b 中途不变
 
 | 情况 | 小例子 | 为什么要补模型 |
 | :--- | :--- | :--- |
-| 对象别名 | `b=a; a.field=input(); sink(b.field);` | 两个变量可能指向同一个对象；只追踪局部变量名看不到这条传播 |
+| 对象别名 | `b=a; a.f=input(); sink(b.f);` | 两个变量可能指向同一个对象；只追踪局部变量名看不到这条传播 |
 | 动态派发 | `service.read()` | 接收者运行时类型决定实际调用哪个实现，见第 3 节 |
 | 库副作用 | `fill(buffer)` | 信息可能通过参数所指对象流出，而不是返回值 |
-| 净化操作 | `y=escape(x); sink(y);` | 污点分析特有的规则：某些调用按约定消除污点，其流函数要删除事实而不是传递事实；净化通常只对特定 sink 有效 |
+| 净化操作 | `y=escape(x); sink(y);` | 污点分析特有的规则：某些调用按约定消除污点，其转移规则要删除事实而不是传递事实；净化通常只对特定 sink 有效 |
 | 隐式流 | `if (x.equals("a")) y="a";` | y 的值由 x 的内容决定，却没有赋值把 x 传给 y；主流工具默认不追踪，以控制误报数量 |
 
-指针分析可以为对象与调用目标提供近似信息。对象、字段、调用目标和上下文的选择共同影响事实域大小与精度；净化与隐式流的取舍则属于污点分析的安全语义，不由通用求解器决定。前一组问题在[第 11 篇](11-pointer-analysis.md)展开，后一组对应后续规划中的污点分析实践专题。
+指针分析可以为对象与调用目标提供近似信息。对象、字段、调用目标和上下文的选择共同影响事实域大小与精度；净化、隐式流的取舍与库的建模则属于污点分析的安全语义与工程约定，不由通用求解器决定。前一组问题在[第 11 篇](11-pointer-analysis.md)展开，后一组（净化、隐式流、库模型）对应后续规划中的污点分析实践专题。
 
-在 Soot 工程中，`cg` 构建调用图，`wjtp` 一类全程序阶段可利用这些关系；具体调用目标取决于入口、选项和建模。第 03 篇直接加载一个方法体的代码，并没有自动获得完整应用的调用图。[Soot 的 Pack 与阶段说明](https://github.com/soot-oss/soot/wiki/Packs-and-phases-in-Soot)
+在 Soot 工程中，`cg` 构建调用图，`wjtp` 一类全程序阶段可利用这些关系（见 [Soot 的 Pack 与阶段说明](https://github.com/soot-oss/soot/wiki/Packs-and-phases-in-Soot)）；具体调用目标取决于入口、选项和建模。第 03 篇直接加载一个方法体的代码，并没有自动获得完整应用的调用图。
 
 ## 本篇要点
 
@@ -158,6 +165,6 @@ if (!b) sink(y);       // b 中途不变
 - **摘要**是方法的使用说明书，让多个调用者复用一次分析；递归时摘要要迭代到不再新增关系。
 - 真实 Java 还需要处理别名、库副作用、净化和隐式流，分别属于指针分析与污点分析实践的内容。
 
-参数映射、匹配返回和摘要复用可以交给统一的框架求解：[IFDS 事实传播](07-ifds.md)。
+参数映射、匹配返回和摘要复用可以交给统一的框架求解。
 
-[上一篇：常量传播](05-constant-propagation.md) · [返回系列总览](README.md)
+[上一篇：05 常量传播与表达式求值](05-constant-propagation.md) · [下一篇：07 IFDS 事实传播](07-ifds.md) · [返回系列总览](README.md)

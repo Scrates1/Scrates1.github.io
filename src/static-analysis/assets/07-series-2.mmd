@@ -20,6 +20,8 @@ flowchart TB
   RAb -->|调用到返回| RBb
   P0a -->|A 调用流 a→p| EP
   EP -->|普通流 p→ret| XR
+  EP ==>|路径边 〈p, exit, ret〉
+出口处即摘要 p→ret| XR
   XR -->|A 返回流 ret→b| RAb
   XR -.->|B 返回流 ret→c：图中存在，
 但无从 B 进入的匹配路径| RBc
