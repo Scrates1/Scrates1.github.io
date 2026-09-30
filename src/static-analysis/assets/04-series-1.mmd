@@ -1,0 +1,16 @@
+flowchart TB
+  subgraph May[可能有污点：按子集排序]
+    direction BT
+    M0["∅"] --- MX["{x}"]
+    M0 --- MY["{y}"]
+    MX --- MXY["{x,y}"]
+    MY --- MXY
+  end
+  subgraph Must[保证已初始化：按超集排序]
+    direction BT
+    UXY["{x,y}"] --- UX["{x}"]
+    UXY --- UY["{y}"]
+    UX --- U0["∅"]
+    UY --- U0
+  end
+

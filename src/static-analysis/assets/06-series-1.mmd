@@ -1,0 +1,8 @@
+flowchart LR
+  A[调用 A：b = id a] -->|调用| E[id 入口：参数 p]
+  B[调用 B：c = id safe] -->|调用| E
+  E --> X[id 出口：return p]
+  X -->|A 对应的返回| RA[retA]
+  X -->|B 对应的返回| RB[retB]
+  A -.调用到返回.-> RA
+  B -.调用到返回.-> RB

@@ -1,0 +1,24 @@
+flowchart TB
+    INPUT["项目源码与构建命令"] --> BUILD["项目原有编译器与构建系统<br/>执行项目自己的编译流程"]
+    BUILD --> PRODUCT["正常构建产物<br/>例如目标文件或可执行文件"]
+    BUILD -. "捕获编译器调用与参数" .-> CAP["Coverity Capture<br/>确定源文件、编译选项与构建上下文"]
+    INPUT --> CAP
+    subgraph CF["前端与表示构建职责：概念上对应①—④"]
+        TRANSLATE["按捕获的环境处理源码<br/>建立 Coverity 分析用中间表示"]
+        STORE["中间目录中的分析输入<br/>不是项目最终可执行文件"]
+        TRANSLATE --> STORE
+    end
+    subgraph CA["分析职责：可与中端分析作类比"]
+        ANALYZE["Coverity 分析引擎与检查器<br/>推断程序行为、检测缺陷"]
+    end
+    CAP --> TRANSLATE
+    STORE --> ANALYZE --> REPORT["问题报告与审查结果<br/>不是⑥目标代码生成"]
+    NOTE["这是公开流程的职责映射<br/>并非内部六个模块的精确对应<br/>分析分支不以生成目标程序为目的"]
+    NOTE -.-> CA
+    classDef front fill:#eaf2ff,stroke:#527bbd,color:#142c50;
+    classDef mid fill:#e7f5ed,stroke:#40855b,color:#163823;
+    classDef note fill:#f4f4f4,stroke:#777,color:#333;
+    class CAP,TRANSLATE,STORE front;
+    class ANALYZE mid;
+    class INPUT,BUILD,PRODUCT,REPORT,NOTE note;
+

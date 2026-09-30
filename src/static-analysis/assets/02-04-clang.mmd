@@ -1,0 +1,31 @@
+flowchart TB
+    SRC["C / C++ 等源码"] --> PP["预处理与词法处理<br/>处理宏、头文件并提供 Token<br/>其中词法处理对应①"]
+    subgraph FRONT["Clang 前端"]
+        PARSE["② 语法分析 + ③ 语义分析<br/>生成带类型等信息的 AST"]
+        IR["④ 中间代码生成<br/>Clang CodeGen：AST → LLVM IR"]
+        PARSE --> IR
+    end
+    PP --> PARSE
+    subgraph LLVM["编译路线：LLVM 中端与后端"]
+        OPT["⑤ 代码优化<br/>LLVM IR 上的分析与优化"]
+        GEN["⑥ 目标代码生成<br/>LLVM 目标相关后端"]
+        OPT --> GEN
+    end
+    IR --> OPT
+    GEN --> OBJ["经汇编等处理得到目标文件<br/>链接属于后续工具链工作"]
+    subgraph CSA["分析路线：Clang Static Analyzer"]
+        CFG["由 AST 构建源码级 CFG"]
+        ENGINE["路径敏感符号执行与检查器<br/>维护状态与约束、检测问题"]
+        CFG --> ENGINE
+    end
+    PARSE --> CFG
+    ENGINE --> REPORT["缺陷报告<br/>此路线不经过 LLVM IR 优化与目标代码生成"]
+    classDef front fill:#eaf2ff,stroke:#527bbd,color:#142c50;
+    classDef mid fill:#e7f5ed,stroke:#40855b,color:#163823;
+    classDef back fill:#fff1dd,stroke:#b07829,color:#51330d;
+    classDef note fill:#f4f4f4,stroke:#777,color:#333;
+    class PP,PARSE,IR front;
+    class OPT,CFG,ENGINE mid;
+    class GEN back;
+    class SRC,OBJ,REPORT note;
+

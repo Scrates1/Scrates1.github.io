@@ -1,0 +1,44 @@
+Compiled from "BranchFlow.java"
+public final class tutorial.BranchFlow {
+  public tutorial.BranchFlow();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static void run(boolean);
+    Code:
+       0: invokestatic  #2                  // Method input:()Ljava/lang/String;
+       3: astore_1
+       4: ldc           #3                  // String safe
+       6: astore_2
+       7: iload_0
+       8: ifeq          13
+      11: aload_1
+      12: astore_2
+      13: aload_2
+      14: invokestatic  #4                  // Method sink:(Ljava/lang/String;)V
+      17: return
+
+  public static java.lang.String input();
+    Code:
+       0: ldc           #5                  // String demo.input
+       2: ldc           #6                  // String external
+       4: invokestatic  #7                  // Method java/lang/System.getProperty:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       7: areturn
+
+  public static void sink(java.lang.String);
+    Code:
+       0: getstatic     #8                  // Field java/lang/System.out:Ljava/io/PrintStream;
+       3: aload_0
+       4: invokevirtual #9                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+       7: return
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_1
+       1: invokestatic  #10                 // Method run:(Z)V
+       4: iconst_0
+       5: invokestatic  #10                 // Method run:(Z)V
+       8: return
+}

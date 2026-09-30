@@ -1,0 +1,34 @@
+=== JIMPLE ===
+    public static 'void' run('boolean')
+    {
+        java.lang.String x, y;
+        'boolean' flag;
+
+        flag := @parameter0: 'boolean';
+
+        x = staticinvoke <tutorial.BranchFlow: java.lang.String input()>();
+
+        y = "safe";
+
+        if flag == false goto label1;
+
+        y = x;
+
+     label1:
+        staticinvoke <tutorial.BranchFlow: 'void' sink(java.lang.String)>(y);
+
+        return;
+    }
+
+=== NORMAL CFG ===
+n1 | flag := @parameter0: boolean | successors=[2]
+n2 | x = staticinvoke <tutorial.BranchFlow: java.lang.String input()>() | successors=[3]
+n3 | y = "safe" | successors=[4]
+n4 | if flag == false goto staticinvoke <tutorial.BranchFlow: void sink(java.lang.String)>(y) | successors=[5, 6]
+n5 | y = x | successors=[6]
+n6 | staticinvoke <tutorial.BranchFlow: void sink(java.lang.String)>(y) | successors=[7]
+n7 | return | successors=[]
+=== BASIC BLOCKS ===
+B1 | nodes=[1, 2, 3, 4] | successors=[2, 3]
+B2 | nodes=[5] | successors=[3]
+B3 | nodes=[6, 7] | successors=[]

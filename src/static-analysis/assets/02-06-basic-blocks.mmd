@@ -1,0 +1,12 @@
+flowchart TB
+    B1["B1 入口基本块<br/>n1 参数绑定<br/>n2 x = input()<br/>n3 y = safe 常量<br/>n4 判断 flag == false"]
+    B2["B2 分支内基本块<br/>n5 y = x"]
+    B3["B3 汇合与正常退出<br/>n6 sink(y)<br/>n7 return"]
+    B1 -->|"flag=true：不跳转"| B2
+    B1 -->|"flag=false：跳转"| B3
+    B2 --> B3
+    classDef block fill:#eaf2ff,stroke:#527bbd,color:#142c50;
+    classDef merge fill:#e7f5ed,stroke:#40855b,color:#163823;
+    class B1,B2 block;
+    class B3 merge;
+

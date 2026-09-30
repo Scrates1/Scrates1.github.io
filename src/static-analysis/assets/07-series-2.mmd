@@ -1,0 +1,27 @@
+flowchart TB
+  subgraph Callee[被调 id]
+    direction TB
+    EP["(entry, p)"]
+    XR["(exit, ret)"]
+    NOTE["B 的调用流不产生 (entry, p)：
+常量实参没有事实可映射"]
+  end
+  subgraph Caller[调用者 main：程序点自上而下]
+    direction TB
+    P0a["(A 之前, a)"]
+    RAa["(retA = B 之前, a)"]
+    RAb["(retA = B 之前, b)"]
+    RBa["(retB, a)"]
+    RBb["(retB, b)"]
+    RBc["(retB, c)"]
+  end
+  P0a -->|调用到返回：a 保留| RAa
+  RAa -->|调用到返回| RBa
+  RAb -->|调用到返回| RBb
+  P0a -->|A 调用流 a→p| EP
+  EP -->|普通流 p→ret| XR
+  XR -->|A 返回流 ret→b| RAb
+  XR -.->|B 返回流 ret→c：图中存在，
+但无从 B 进入的匹配路径| RBc
+  style RBc fill:#f0f0f0,stroke:#999999,stroke-dasharray:5 3
+  style NOTE fill:#ffffff,stroke:#999999,stroke-dasharray:2 2

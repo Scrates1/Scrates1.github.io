@@ -1,0 +1,34 @@
+=== tutorial.BranchFlow.run ===
+n1 | flag := @parameter0: boolean | IN=[] | OUT=[]
+n2 | x = staticinvoke <tutorial.BranchFlow: java.lang.String input()>() | IN=[] | OUT=[x]
+n3 | y = "safe" | IN=[x] | OUT=[x]
+n4 | if flag == false goto staticinvoke <tutorial.BranchFlow: void sink(java.lang.String)>(y) | IN=[x] | OUT=[x]
+n5 | y = x | IN=[x] | OUT=[x, y]
+n6 | staticinvoke <tutorial.BranchFlow: void sink(java.lang.String)>(y) | IN=[x, y] | OUT=[x, y]
+n7 | return | IN=[x, y] | OUT=[x, y]
+visits=7; nodes=7
+=== tutorial.FlowCases.safe ===
+n1 | flag := @parameter0: boolean | IN=[] | OUT=[]
+n2 | staticinvoke <tutorial.BranchFlow: java.lang.String input()>() | IN=[] | OUT=[]
+n3 | y = "safe" | IN=[] | OUT=[]
+n4 | if flag == false goto staticinvoke <tutorial.BranchFlow: void sink(java.lang.String)>(y) | IN=[] | OUT=[]
+n5 | y = "clean" | IN=[] | OUT=[]
+n6 | staticinvoke <tutorial.BranchFlow: void sink(java.lang.String)>(y) | IN=[] | OUT=[]
+n7 | return | IN=[] | OUT=[]
+visits=7; nodes=7
+=== tutorial.FlowCases.loop ===
+n1 | flag := @parameter0: boolean | IN=[] | OUT=[]
+n2 | x = staticinvoke <tutorial.BranchFlow: java.lang.String input()>() | IN=[] | OUT=[x]
+n3 | y = "safe" | IN=[x] | OUT=[x]
+n4 | z = "safe" | IN=[x] | OUT=[x]
+n5 | if flag == false goto staticinvoke <tutorial.BranchFlow: void sink(java.lang.String)>(z) | IN=[x, y, z] | OUT=[x, y, z]
+n6 | z = y | IN=[x, y, z] | OUT=[x, y, z]
+n7 | y = x | IN=[x, y, z] | OUT=[x, y, z]
+n8 | flag = staticinvoke <tutorial.FlowCases: boolean again()>() | IN=[x, y, z] | OUT=[x, y, z]
+n9 | goto [?= (branch)] | IN=[x, y, z] | OUT=[x, y, z]
+n10 | staticinvoke <tutorial.BranchFlow: void sink(java.lang.String)>(z) | IN=[x, y, z] | OUT=[x, y, z]
+n11 | return | IN=[x, y, z] | OUT=[x, y, z]
+visits=22; nodes=11
+boundary checks: self-copy, overwrite, unreachable source, empty reachable state OK
+ALL CHECKS PASSED
+

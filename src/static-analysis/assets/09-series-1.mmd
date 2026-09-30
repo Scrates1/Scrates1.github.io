@@ -1,0 +1,6 @@
+flowchart TD
+  A["y=safe；条件 true"] -->|b 为真| B["y=σ；条件 β"]
+  A -->|b 为假| C["y=safe；条件 非 β"]
+  B --> D["尝试进入 sink：β 且 非 β"]
+  D --> X[条件冲突，停止此分支]
+  C --> S["进入 sink：y 仍为 safe"]

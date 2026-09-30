@@ -1,0 +1,20 @@
+flowchart TB
+    N1["n1 入口<br/>flag := @parameter0: boolean"]
+    N2["n2 x = input()"]
+    N3["n3 y = safe 常量"]
+    N4{"n4 条件判断<br/>flag == false ?"}
+    N5["n5 y = x"]
+    N6["n6 汇合位置<br/>sink(y)"]
+    N7["n7 正常出口<br/>return"]
+    N1 --> N2 --> N3 --> N4
+    N4 -->|"flag=true：不跳转"| N5
+    N4 -->|"flag=false：跳转"| N6
+    N5 --> N6 --> N7
+    classDef statement fill:#eaf2ff,stroke:#527bbd,color:#142c50;
+    classDef branch fill:#fff1dd,stroke:#b07829,color:#51330d;
+    classDef merge fill:#e7f5ed,stroke:#40855b,color:#163823;
+    class N1,N2,N3,N5,N7 statement;
+    class N4 branch;
+    class N6 merge;
+
+

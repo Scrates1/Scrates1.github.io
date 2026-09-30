@@ -4,6 +4,7 @@ import { sidebar } from "vuepress-theme-hope";
 // 以后往对应目录丢 .md（带数字前缀控制顺序）即可，无需手动维护。
 export default sidebar({
   "/compilation/": "structure",
+  "/static-analysis/": "structure",
   "/java/": "structure",
   "/data/": "structure",
   "/operating_system/": "structure",

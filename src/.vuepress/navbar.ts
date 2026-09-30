@@ -4,6 +4,7 @@ import { navbar } from "vuepress-theme-hope";
 export default navbar([
   "/",
   { text: "编译", link: "/compilation/03lexical_analysis.html" },
+  { text: "静态分析", link: "/static-analysis/" },
   { text: "Java", link: "/java/01java_basic_knowledge.html" },
   {
     text: "更多",

@@ -1,0 +1,30 @@
+flowchart TB
+    SRC["源代码"]
+    subgraph FRONT["前端：理解源语言"]
+        A["① 词法分析<br/>字符 → Token"]
+        B["② 语法分析<br/>Token → 语法树 AST"]
+        C["③ 语义分析<br/>名称解析、类型检查等"]
+        D["④ 中间代码生成<br/>形成供后续处理的 IR"]
+        A --> B --> C --> D
+    end
+    subgraph MID["中端：分析与变换程序"]
+        E["⑤ 代码优化<br/>利用控制流、数据流等分析<br/>实施语义保持的程序变换"]
+    end
+    subgraph BACK["后端：适配目标平台"]
+        F["⑥ 目标代码生成<br/>目标相关处理<br/>生成机器码或字节码等"]
+    end
+    SRC --> A
+    D --> E --> F --> OUT["目标代码"]
+    NOTE["符号表管理与错误诊断<br/>贯穿相关阶段"]
+    NOTE -.-> FRONT
+    NOTE -.-> MID
+    NOTE -.-> BACK
+    classDef front fill:#eaf2ff,stroke:#527bbd,color:#142c50;
+    classDef mid fill:#e7f5ed,stroke:#40855b,color:#163823;
+    classDef back fill:#fff1dd,stroke:#b07829,color:#51330d;
+    classDef note fill:#f4f4f4,stroke:#777,color:#333;
+    class A,B,C,D front;
+    class E mid;
+    class F back;
+    class SRC,OUT,NOTE note;
+

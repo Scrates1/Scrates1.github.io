@@ -1,0 +1,7 @@
+flowchart TD
+  P[初始化：x 有污点，y 和 z 安全] --> H[H：循环条件]
+  H -->|进入| Z[Z：z = y]
+  Z --> Y[Y：y = x]
+  Y --> C[C：更新 flag 并跳回]
+  C --> H
+  H -->|退出| S[S：sink z]

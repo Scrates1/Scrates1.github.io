@@ -1,0 +1,14 @@
+flowchart LR
+  subgraph Before[执行 y = x 前]
+    L0[Λ]
+    X0[x]
+    Y0[y]
+  end
+  subgraph After[执行 y = x 后]
+    L1[Λ]
+    X1[x]
+    Y1[y]
+  end
+  L0 --> L1
+  X0 --> X1
+  X0 --> Y1
