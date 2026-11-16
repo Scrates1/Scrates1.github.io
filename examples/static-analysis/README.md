@@ -1,6 +1,6 @@
-# 第 02—03 篇与第 11 篇：程序表示、污点工作列表与 Spark 指向分析
+# 第 02、04 篇与第 11 篇：程序表示、污点工作列表与 Spark 指向分析
 
-这个独立 Maven 工程先展示程序表示与正常控制流，再按第 03 篇的简化规则求解局部变量污点，最后用 Soot 自带的 Spark 对第 11 篇的四个例子做整程序指向分析。
+这个独立 Maven 工程先展示程序表示与正常控制流，再按第 03 篇的简化规则与第 04 篇的工作列表求解局部变量污点，最后用 Soot 自带的 Spark 对第 11 篇的四个例子做整程序指向分析。
 
 - `BranchFlow`：带条件赋值的 Java 程序；`input()` 在教学模型中是来源，打印用的 `sink()` 是敏感操作的占位实现，不代表真实漏洞。
 - `InspectGraph`：读取编译后的 `run(boolean)`，打印实际 Jimple、语句级 CFG 和基本块。
@@ -22,7 +22,7 @@
 
 在其他系统上，可在本目录使用 JDK 11 执行 `mvn compile dependency:build-classpath -Dmdep.outputFile=target/classpath.txt`，然后将 `target/classes` 与该文件中的依赖路径拼成 Java classpath，运行 `tutorial.InspectGraph target/classes`。classpath 分隔符在 Windows 上为分号，Linux/macOS 上为冒号；这一跨平台方式未在本文验证环境中运行。
 
-使用同一个 classpath 运行 `tutorial.TaintWorklist target/classes` 可单独执行第 03 篇，运行 `tutorial.PointsToInspect target/classes` 可单独执行第 11 篇。PowerShell 脚本会依次执行全部示例，输出分别为 `taint.txt` 与 `points-to.txt`；两者成功时各打印一次 `ALL CHECKS PASSED`。
+使用同一个 classpath 运行 `tutorial.TaintWorklist target/classes` 可单独执行第 04 篇，运行 `tutorial.PointsToInspect target/classes` 可单独执行第 11 篇。PowerShell 脚本会依次执行全部示例，输出分别为 `taint.txt` 与 `points-to.txt`；两者成功时各打印一次 `ALL CHECKS PASSED`。
 
 ## 污点结果与模型
 

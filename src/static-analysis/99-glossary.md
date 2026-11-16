@@ -38,24 +38,17 @@ category:
 | 控制流图 | CFG, control-flow graph | 节点是语句或基本块，边是可能的执行转移 | n1…n7 与 n4→n5、n4→n6 |
 | 基本块 | basic block | 只能从块首进入、块末离开的连续语句 | B1={n1…n4} |
 | 字节码 | bytecode | JVM 执行的指令序列 | `aload_1; astore_2` 对应 `y=x` |
-| 三地址码 | three-address code | 每条语句最多一个运算、三个操作数的 IR 形式 | Jimple 的 `y = x;` |
+| 三地址码 | three-address code | 将复杂表达式拆成简单操作，典型语句含一个运算、至多三个地址 | `t = a + b`；调用可有多个实参 |
 | 操作数栈 | operand stack | JVM 暂存中间值的栈，字节码指令在其上取放数据 | `input()` 的返回值先在栈上，再 `astore_1` |
 | 构建捕获 | build capture | 包裹构建命令、监控每次编译器调用以取得真实编译上下文 | Coverity 的 `cov-build` |
 
-## 第 03 篇：数据流传播与工作列表
+## 第 03 篇：数据流分析与格
 
 | 术语 | 英文 | 一句话解释 | 在例子中 |
 | :--- | :--- | :--- | :--- |
 | IN / OUT | in-set / out-set | 每个节点语句执行前 / 后的抽象状态 | `IN[n6]={x,y}` |
 | 向前分析 | forward analysis | 信息沿执行方向从前驱流向后继 | 污点从 input 流向 sink |
-| 工作列表 | worklist | 等待重新计算的节点队列 | `[Z,S]` |
-| 回边 | back edge | 从循环体末尾回到循环头的边 | C→H |
 | 可达标记 | reachability flag | 区分“没执行到”与“执行到了但集合为空” | 入口可达且 IN=∅ |
-
-## 第 04 篇：偏序、格与不动点
-
-| 术语 | 英文 | 一句话解释 | 在例子中 |
-| :--- | :--- | :--- | :--- |
 | 偏序 | partial order | 自反、反对称、传递的比较关系，允许有元素不可比 | 本系列 `a ⊑ b` 表示 a 至少和 b 一样精确 |
 | 全序 | total order | 任意两个元素都可比较的偏序 | 整数上的 `≤` |
 | 幂集 | power set, 𝒫 | 一个集合的所有子集组成的集合 | `𝒫({x,y})` 有四个元素 |
@@ -65,12 +58,25 @@ category:
 | Join / 最小上界 | join, least upper bound, ⊔ | 能同时容纳两边、又不多容的最小结果 | 污点：并集；初始化保证：交集 |
 | Meet / 最大下界 | meet, greatest lower bound, ⊓ | Join 的对偶 | 污点：交集 |
 | ⊤ / ⊥ | top / bottom | 格中最粗 / 最精确的元素 | 污点域：`{x,y}` / `∅` |
+| 序对偶 | order duality | 把偏序整个反过来，Join 与 Meet 互换 | 其他教材把并集叫 Meet 的原因 |
+
+## 第 04 篇：工作列表与不动点
+
+| 术语 | 英文 | 一句话解释 | 在例子中 |
+| :--- | :--- | :--- | :--- |
+| 工作列表 | worklist | 等待首次计算或重新计算的节点队列 | `[Z,S]` |
+| 回边 | back edge | 从循环体末尾回到循环头的边 | C→H |
 | 单调 | monotone | 输入按偏序变粗，输出不会变精 | `y="safe"` 的规则单调但会删事实 |
 | 不动点 / 最小不动点 | fixed point / least fixed point | 再算一遍也不变的状态 / 其中最精确的那个 | 循环头稳定在 `{x,y,z}` |
-| 上升链 / 有限高度 | ascending chain / finite height | 严格变粗的序列 / 这种序列有长度上限 | `{x} ⊑ {x,y} ⊑ {x,y,z}` |
-| 区间域 | interval domain | 每个变量记一个 `[下界, 上界]` 的数值抽象域，高度无限 | `[0,2]` |
-| 加宽 | widening, ∇ | Join 之后再把变大的一侧界强行推到无穷，以迫使迭代停止 | `[0,1] ∇ [0,2] = [0,+∞)` |
-| 序对偶 | order duality | 把偏序整个反过来，Join 与 Meet 互换 | 其他教材把并集叫 Meet 的原因 |
+| 上升链 / 有限高度 | ascending chain / finite height | 按偏序变粗的序列 / 严格上升的步数有统一上限 | `{x} ⊑ {x,y} ⊑ {x,y,z}` |
+| FIFO / LIFO | first in, first out / last in, first out | 按加入顺序 / 逆加入顺序取出待处理节点 | H 依次加入 Z、S 后，FIFO 先取 Z，LIFO 先取 S |
+| 优先队列 | priority queue | 按优先级选择下一个待处理节点 | 固定优先级 `H、Z、Y、C、S`，让 S 晚些处理 |
+| 逆后序 | reverse postorder, RPO | 深度优先遍历完成节点的记录顺序反转；无环图上是拓扑顺序 | 可用作向前分析的调度优先级 |
+| 轮询迭代 | round-robin iteration | 按固定顺序反复计算各节点，直到完整一轮无变化 | 即使只有 H 变化，也会扫描一轮中的其他节点 |
+| 混沌迭代 | chaotic iteration | 每次选择一个分量，使用当前最新状态更新；需保证待更新项不被遗漏 | worklist 利用依赖关系安排这种迭代 |
+| Kildall 算法 | Kildall's algorithm | 在格上合并并通过待处理集合传播变化的经典数据流算法 | 首次到达或输入变化后继续处理后继 |
+| 区间域 | interval domain | 每个变量记一个 `[下界, 上界]`；数学整数上的区间域高度无限 | `[0,2]` |
+| 加宽 | widening, ∇ | 主动扩大结果以保证收敛；区间的一种做法是将向外移动的界推到无穷 | `[0,1] ∇ [0,2] = [0,+∞)` |
 
 ## 第 05 篇：常量传播与表达式求值
 
@@ -78,7 +84,7 @@ category:
 | :--- | :--- | :--- | :--- |
 | 平坦格 | flat lattice | 底、一层互不可比的元素、顶三层结构；最长链只有三个元素 | `⊥ ⊑ 3 ⊑ ⊤` |
 | 环境 | environment, ρ | 变量到抽象值的映射 | `ρ={a↦3,b↦7}` |
-| 常量传播 / 折叠 | constant propagation / folding | 分析出常量 / 用分析结果改写程序 | 得出 b=7 / 把 `3+4` 改成 `7` |
+| 常量传播 / 折叠 | constant propagation / folding | 判断变量是否为常量 / 将常量表达式替换为计算结果 | 得出 b=7 / 把 `3+4` 改成 `7` |
 
 ## 第 06 篇：调用关系与上下文
 
@@ -96,7 +102,7 @@ category:
 | 流敏感 | flow-sensitive | 区分语句顺序 | `x=input(); x="safe";` 后 x 干净 |
 | 路径敏感（06 的例子） | path-sensitive | 区分分支条件及其关联，定义见第 01 篇 | `if (flag) … if (!flag) sink(y)` |
 | 调用到返回边 / 旁路 | call-to-return edge | 调用者中不经被调方法传播的事实所走的边 | 执行 A 时 a 的污点直接保留 |
-| 摘要 | summary | 方法“输入怎样影响输出”的可复用记录 | id：入口 p 有污点则返回值有污点 |
+| 摘要 | summary | 方法输入对输出影响的可复用记录 | id：入口 p 有污点则返回值有污点 |
 | 净化 | sanitizer | 按约定消除污点的操作 | `escape(x)` |
 | 隐式流 | implicit flow | 值通过条件判断而非赋值影响另一变量 | `if (x.equals("a")) y="a";` |
 
@@ -125,10 +131,10 @@ category:
 | :--- | :--- | :--- | :--- |
 | IDE | Interprocedural Distributive Environments | 在 IFDS 的事实边上附加值变换 | 求 u=15、v=30 |
 | 边函数 | edge function | 一条事实边上值怎样变 | `t↦t+2` |
-| 跳转函数 | jump function | 从方法入口到某个目标事实的所有边函数组合结果 | `〈p, exit, ret, t↦5(t+2)〉` |
+| 跳转函数 | jump function | 从方法入口到目标事实，沿路径组合边函数、再合并路径所得的变换 | `〈p, exit, ret, t↦5(t+2)〉` |
 | 函数组合 | composition, ∘ | 先做 f 再做 g 写作 `g∘f` | `5(t+2)` |
 | 逐点合并 | pointwise join | 两条路径的函数在每个输入上分别 Join | `(j₁ ⊔ j₂)(t) = j₁(t) ⊔ j₂(t)` |
-| 线性常量传播 | linear constant propagation | 边函数限定为一元线性函数 `t↦a·t+b` 的常量传播，是 IDE 原论文的示例 | calc 的加 2、乘 5 |
+| 线性常量传播 | linear constant propagation | 解释常量、复制和一元线性赋值的常量传播，函数表示须支持组合与合并 | calc 的加 2、乘 5 |
 | 两阶段求解 | phase I / phase II | 先算稳定的跳转函数，再代入入口值 | 先得 j，再算 j(1)、j(4) |
 
 ## 第 09 篇：符号执行与 Clang
