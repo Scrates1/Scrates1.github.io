@@ -12,6 +12,11 @@ notes = root / 'notes' / 'static-analysis'
 examples = root / 'examples' / 'static-analysis'
 articles = sorted(p for p in series.glob('[0-9][0-9]-*.md') if not p.name.startswith('99'))
 assert len(articles) == 11, [p.name for p in articles]
+assert {p.name for p in series.glob('*.md')} == {
+    *(p.name for p in articles), 'README.md', '99-glossary.md'
+}, 'Unexpected standalone article'
+assert (series / '03-dataflow-and-lattice.md') in articles
+assert (series / '04-worklist-and-fixed-point.md') in articles
 issues = []
 link_count = 0
 docs = [*sorted(notes.rglob('*.md')), *sorted(series.rglob('*.md')), examples / 'README.md']
@@ -73,11 +78,16 @@ for a, b in itertools.product(sets, repeat=2):
 g = lambda s: s | ({'r'} if {'p', 'q'} <= s else set())
 assert g({'p', 'q'}) != g({'p'}) | g({'q'})
 
-# Independently simulate the reduced FIFO worklist printed in chapter 03.
+# Independently simulate the reduced FIFO worklist in chapter 04.
 successors = {'H': ['Z', 'S'], 'Z': ['Y'], 'Y': ['C'], 'C': ['H'], 'S': []}
 state = {'H': {'x'}}; out = {}; queue = ['H']; trace = []
+propagation_rows = []
+def facts_text(facts):
+    return '未可达' if facts is None else '{' + ','.join(sorted(facts)) + '}'
 while queue:
     n = queue.pop(0); s = state[n]; t = set(s)
+    old_inputs = {next_node: state.get(next_node) for next_node in successors[n]}
+    enqueued = set()
     if n == 'Z': t = (s - {'z'}) | ({'z'} if 'y' in s else set())
     if n == 'Y': t = (s - {'y'}) | ({'y'} if 'x' in s else set())
     if n not in out or out[n] != t:
@@ -86,10 +96,27 @@ while queue:
             old = state.get(next_node); merged = (old or set()) | t
             if old is None or old != merged:
                 state[next_node] = merged
-                if next_node not in queue: queue.append(next_node)
+                if next_node not in queue:
+                    queue.append(next_node)
+                    enqueued.add(next_node)
     trace.append((n, sorted(s), list(queue)))
+    queue_text = '[' + ','.join(queue) + ']'
+    for next_node, old_input in old_inputs.items():
+        propagation_rows.append([n, facts_text(s), next_node, facts_text(old_input),
+                                 facts_text(state[next_node]),
+                                 '是' if next_node in enqueued else '否', queue_text])
+    if not successors[n]:
+        propagation_rows.append([n, facts_text(s), '—', '—', '—', '否', queue_text])
 assert [x[0] for x in trace] == ['H', 'Z', 'S', 'Y', 'C', 'H', 'Z', 'S', 'Y', 'C', 'H', 'Z', 'S']
 assert state['S'] == {'x', 'y', 'z'}
+
+# Preserve the author's 8-column, 16-row table; H's two successor rows share one dequeue.
+worklist_text = (series / '04-worklist-and-fixed-point.md').read_text(encoding='utf-8')
+rows = [[cell.strip().strip('`') for cell in line.split('|')[1:-1]]
+        for line in worklist_text.splitlines() if re.match(r'^\| [HZYCS] \|', line)]
+assert len(rows) == len(propagation_rows) == 16, 'Worklist table row count'
+for row_number, (row, expected) in enumerate(zip(rows, propagation_rows), 1):
+    assert len(row) == 8 and row[:2] + row[3:] == expected, (row_number, row, expected)
 
 # Constant, IDE and symbolic examples; these are example checks, not a general proof.
 # Chapter 01: same observation space for both approximation directions.
@@ -161,7 +188,8 @@ per_recv, _ = andersen([('p', 'o4'), ('q', 'o5'), ('t1', 's'), ('c0', 'c')],
                        [('this4', 'f', 'v4'), ('this5', 'f', 'v5')], [('t2', 'q', 'f')])
 assert per_recv['t2'] == {'c'}, per_recv
 assert not issues, '\n'.join(issues)
-report = {'articles': len(articles), 'markdown_files_checked': len(docs), 'local_links': link_count,
+report = {'articles': len(articles), 'worklist_table_rows': len(rows),
+          'markdown_files_checked': len(docs), 'local_links': link_count,
           'svg_files': len(list((series / 'assets').glob('*.svg'))), 'lattice_layout': 'PASS',
           'finite_domain_checks': 'PASS', 'loop_table_trace': trace, 'example_calculations': 'PASS'}
 Path(tempfile.gettempdir(), 'series-validation.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
