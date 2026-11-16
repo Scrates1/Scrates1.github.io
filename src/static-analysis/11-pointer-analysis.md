@@ -163,7 +163,7 @@ o3 合并了 A、B 各自创建的对象，字段共用 `pts(o3.f)`，于是产�
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/11-series-2.mmd)
 
-**对象敏感（object sensitivity）**按“替哪个对象执行”区分上下文，用接收者对象的分配点作标识，由 [Milanova、Rountev 与 Ryder](https://cs.rpi.edu/~milanova/docs/tosem05.pdf) 提出：
+**对象敏感（object sensitivity）**按“替哪个对象执行”区分上下文，用接收者对象的分配点作标识，由 [Milanova、Rountev 与 Ryder](https://www.cs.rpi.edu/~milanova/docs/tosem05.pdf) 提出：
 
 ```java
 class Holder {
