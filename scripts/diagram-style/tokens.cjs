@@ -1,4 +1,4 @@
-// Design tokens for the static-analysis diagrams ("warm blueprint").
+// Design tokens for blog diagrams ("warm blueprint") — any technical article on this site.
 // Plate, grid and ink colours come from the site's --yuan-* palette in
 // src/.vuepress/styles/index.scss, so the figures sit on the page instead of on top of it.
 // Each role is a stroke / fill / text triple.

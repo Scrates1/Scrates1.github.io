@@ -1,13 +1,15 @@
-// Render src/static-analysis/assets/<name>.mmd in the series' blueprint style, once per colour mode:
+// Render warm-blueprint diagrams for any blog assets directory (day + night SVG).
 //   <name>.svg       day figure    (preview: %TEMP%/<name>.png)
 //   <name>.dark.svg  night figure  (preview: %TEMP%/<name>.dark.png)
-// Usage: node scripts/render_named_diagrams.cjs 05-series-1 07-series-2
-//        node scripts/render_named_diagrams.cjs --all
+// Usage:
+//   node scripts/render_named_diagrams.cjs 05-series-1 07-series-2
+//   node scripts/render_named_diagrams.cjs --all
+//   node scripts/render_named_diagrams.cjs --dir src/tips/assets overview
 //
-// Every diagram must be listed in assets/diagram-manifest.json (name -> type). Colours and fonts
-// live in scripts/diagram-style/; the .mmd files only carry structure and semantic class names.
-// Uses playwright + mermaid from the local npx cache and headless Edge; the SVGs are committed,
-// so this only needs to run when a .mmd or the style changes. Inspect the PNGs before committing.
+// Default --dir is src/static-analysis/assets. Every diagram must be listed in that
+// directory's diagram-manifest.json (name -> type). Colours and fonts live in
+// scripts/diagram-style/; .mmd files only carry structure and semantic class names.
+// Uses playwright + mermaid from the local npx cache and headless Edge; commit the SVGs.
 const fs = require('fs');
 const path = require('path');
 const {chromium} = require(path.join(process.env.LOCALAPPDATA, 'npm-cache/_npx/e41f203b7505f1fb/node_modules/playwright'));
@@ -15,12 +17,27 @@ const {modes, GRID, PAD, FONT, MEASURE_FONT, CJK_FONT} = require('./diagram-styl
 const {mermaidConfig, withTheme, QUOTE_STAND_IN} = require('./diagram-style/blueprint-theme.cjs');
 const {postprocess} = require('./diagram-style/svg-postprocess.cjs');
 
-const assets = path.resolve(__dirname, '..', 'src', 'static-analysis', 'assets');
+const root = path.resolve(__dirname, '..');
 const mermaidPath = path.join(process.env.LOCALAPPDATA, 'npm-cache/_npx/668c188756b835f3/node_modules/.mermaid-lyaZkmqu/dist/mermaid.min.js');
-const manifest = JSON.parse(fs.readFileSync(path.join(assets, 'diagram-manifest.json'), 'utf8'));
 
-const args = process.argv.slice(2);
-const names = args.includes('--all') ? Object.keys(manifest) : args;
+const rawArgs = process.argv.slice(2);
+let dirArg = 'src/static-analysis/assets';
+const args = [];
+for (let i = 0; i < rawArgs.length; i++) {
+  if (rawArgs[i] === '--dir') {
+    if (!rawArgs[i + 1]) { console.error('--dir needs a path'); process.exit(2); }
+    dirArg = rawArgs[++i];
+    continue;
+  }
+  args.push(rawArgs[i]);
+}
+const assets = path.resolve(root, dirArg);
+if (!fs.existsSync(assets)) { console.error('assets directory not found: ' + assets); process.exit(2); }
+const manifestPath = path.join(assets, 'diagram-manifest.json');
+if (!fs.existsSync(manifestPath)) { console.error('missing diagram-manifest.json in ' + assets); process.exit(2); }
+const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+
+const names = args.includes('--all') ? Object.keys(manifest) : args.filter(a => a !== '--all');
 if (!names.length) { console.error('no diagram names given (or use --all)'); process.exit(2); }
 const unknown = names.filter(n => !manifest[n]);
 if (unknown.length) { console.error('not in diagram-manifest.json: ' + unknown.join(', ')); process.exit(2); }
