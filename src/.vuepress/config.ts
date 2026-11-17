@@ -1,25 +1,25 @@
 import { defineUserConfig } from "vuepress";
+import { getDirname, path } from "@vuepress/utils";
 import theme from "./theme.js";
 
+const __dirname = getDirname(import.meta.url);
 
 export default defineUserConfig({
-
   base: "/",
 
   lang: "zh-CN",
 
-
   locales: {
     "/": {
       lang: "zh-CN",
-      title: "秋迟先生",
-      description: "计算机相关知识",
-
+      title: "远起",
+      description: "蜉蝣天地，且行且喜",
     },
-    },
-
+  },
 
   theme,
+
+  clientConfigFile: path.resolve(__dirname, "./client.ts"),
 
   shouldPrefetch: false,
 

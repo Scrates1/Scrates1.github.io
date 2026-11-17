@@ -7,9 +7,12 @@ export default hopeTheme({
   hostname: "https://Scrates1.github.io",
 
   author: {
-    name: "秋迟先生",
+    name: "远起",
     url: "https://Scrates1.github.io",
   },
+
+  // 减少主题默认装饰，整体更干净
+  pure: true,
 
   print:false,
 
@@ -19,7 +22,7 @@ export default hopeTheme({
 
   iconAssets: "iconfont",
 
-  logo: "/logo.png",
+  logo: "/logo.jpg",
 
   repo: "Scrates1/Scrates1.github.io",
 
@@ -33,6 +36,7 @@ export default hopeTheme({
     medias: {
       GitHub: "https://github.com/Scrates1",
     },
+    avatar: "/avatar.jpg",
     roundAvatar:true,
     //每页文章数量
     articlePerPage:10,
@@ -53,12 +57,12 @@ export default hopeTheme({
 
       //footer: '<a href="https://beian.miit.gov.cn/">鲁ICP备2021042179号-1</a>',
 
-      copyright:'<a href="https://beian.miit.gov.cn/">鲁ICP备2021042179号-1</a> | Copyright © 2022-present | qiuchi',
+      copyright:'<a href="https://beian.miit.gov.cn/">鲁ICP备2021042179号-1</a> | Copyright © 2022-present | 远起',
 
       displayFooter: true,
 
       blog: {
-        description: "虽迟却至。",
+        description: "蜉蝣天地，且行且喜",
         intro: "/intro.html",
       },
 

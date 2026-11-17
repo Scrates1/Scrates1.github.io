@@ -1,84 +1,359 @@
 // place your custom styles here
 // desktop
-$laptop: 1280px ;
-#toc {
+$laptop: 1280px;
 
-  
-    @media (min-width: $laptop) {
-      .has-toc & {
-        display: block;
-      }
-    }
-  
-    @media print {
-      display: none !important;
-    }
+// —— 远起：头像/秋山主题 token ——
+:root {
+  --yuan-bg: #f5f2ec;
+  --yuan-surface: #fbf8f2;
+  --yuan-text: #3a2a22;
+  --yuan-muted: #7a6a5c;
+  --yuan-green: #2f4a3f;
+  --yuan-green-soft: #4a6753;
+  --yuan-hover: #9a5a35;
+  --yuan-terra: #b06d44;
+  --yuan-border: #e3dacb;
+  --yuan-code: #ece8df;
+
+  --bg-color-secondary: #fbf8f2;
+  --bg-color-tertiary: #ece8df;
+  --text-color-light: #7a6a5c;
+  --border-color: #e3dacb;
+  --code-bg-color: #ece8df;
+  --theme-color-light: #4a6753;
 }
 
+[data-theme="dark"] {
+  --yuan-bg: #1c1a17;
+  --yuan-surface: #25221e;
+  --yuan-text: #ebe4d6;
+  --yuan-muted: #a89a88;
+  --yuan-green: #8fb09c;
+  --yuan-green-soft: #8fb09c;
+  --yuan-hover: #d9926a;
+  --yuan-terra: #d9926a;
+  --yuan-border: #3a342d;
+  --yuan-code: #2a2621;
+
+  --theme-color: #8fb09c;
+  --bg-color: #1c1a17;
+  --bg-color-secondary: #25221e;
+  --text-color: #ebe4d6;
+  --text-color-light: #a89a88;
+  --border-color: #3a342d;
+  --code-bg-color: #2a2621;
+}
+
+::selection {
+  background: rgba(176, 109, 68, 0.25);
+}
+
+// tip / 读前须知：默认鲜绿 #009400 与秋山墨绿冲突，改为同系
+:root {
+  --tip-title-color: #2f4a3f;
+  --tip-bg-color: #eef2ee;
+  --tip-border-color: #4a6753;
+  --tip-code-bg-color: rgba(47, 74, 63, 0.1);
+
+  --info-title-color: #2f4a3f;
+  --info-bg-color: #eef2ee;
+  --info-border-color: #4a6753;
+  --info-code-bg-color: rgba(47, 74, 63, 0.1);
+}
+
+[data-theme="dark"] {
+  --tip-title-color: #c5d6cb;
+  --tip-bg-color: #243028;
+  --tip-border-color: #8fb09c;
+  --tip-code-bg-color: rgba(143, 176, 156, 0.15);
+
+  --info-title-color: #c5d6cb;
+  --info-bg-color: #243028;
+  --info-border-color: #8fb09c;
+  --info-code-bg-color: rgba(143, 176, 156, 0.15);
+}
+
+// —— Blog home ——
+.vp-blog-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: clamp(440px, 54vh, 560px);
+  color: var(--yuan-text);
+
+  .vp-blog-mask {
+    filter: saturate(0.95) brightness(1.03) contrast(0.98);
+    background-position: center 28% !important;
+    background-size: cover !important;
+  }
+
+  .vp-blog-hero-title {
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    padding-left: 0.2em;
+    color: var(--yuan-text);
+    text-shadow: 0 1px 12px rgba(251, 248, 242, 0.85);
+  }
+
+  .vp-blog-hero-description {
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    color: var(--yuan-muted);
+    text-shadow: 0 1px 8px rgba(251, 248, 242, 0.75);
+  }
+
+  .vp-blog-hero-image {
+    border: 2px solid var(--yuan-surface);
+    box-shadow: 0 6px 20px rgba(58, 42, 34, 0.12);
+  }
+}
+
+.vp-article-list {
+  .vp-article-item {
+    box-shadow: none !important;
+    border: 1px solid var(--yuan-border);
+    border-radius: 10px;
+    background: var(--yuan-surface);
+  }
+}
+
+.vp-project-panel {
+  .vp-project-card {
+    box-shadow: none !important;
+    border: 1px solid rgba(196, 178, 152, 0.38);
+    border-radius: 10px;
+    background: rgba(251, 248, 242, 0.88) !important;
+
+    &:hover {
+      background: #fcf6ec !important;
+      border-color: var(--yuan-terra);
+      transform: translateY(-1px);
+    }
+
+    &[class*="project"] {
+      background: rgba(251, 248, 242, 0.88) !important;
+    }
+  }
+
+  .vp-project-name {
+    color: var(--yuan-text);
+    font-weight: 600;
+  }
+
+  .vp-project-desc {
+    color: var(--yuan-muted);
+  }
+}
+
+// —— 文档正文 ——
+.theme-hope-content {
+  a {
+    color: var(--yuan-green);
+    text-decoration: underline;
+    text-decoration-color: rgba(74, 103, 83, 0.5);
+    text-underline-offset: 3px;
+
+    &:hover {
+      color: var(--yuan-hover);
+      text-decoration-color: var(--yuan-hover);
+    }
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--yuan-green);
+  }
+
+  blockquote {
+    padding: 0.6rem 1rem;
+    border-inline-start: 3px solid var(--yuan-green-soft);
+    border-radius: 0 6px 6px 0;
+    background: var(--yuan-surface);
+    color: var(--yuan-muted);
+  }
+
+  hr {
+    border-color: var(--yuan-border);
+  }
+
+  :not(pre) > code {
+    border: 1px solid var(--yuan-border);
+    background: var(--yuan-code);
+    color: var(--yuan-text);
+  }
+
+  div[class*="language-"],
+  pre {
+    --code-bg-color: var(--yuan-surface);
+    --code-highlight-line-color: var(--yuan-bg);
+    --code-line-color: var(--yuan-muted);
+    border: 1px solid var(--yuan-border);
+    background: var(--yuan-surface);
+  }
+
+  table {
+    th,
+    td {
+      border-color: var(--yuan-border);
+    }
+
+    th {
+      background: var(--yuan-surface);
+      color: var(--yuan-green);
+    }
+  }
+}
+
+// —— 侧栏 ——
+.vp-sidebar,
+.sidebar {
+  background: var(--yuan-surface);
+  border-inline-end: 1px solid var(--yuan-border);
+}
+
+.vp-sidebar-link,
+.sidebar-link {
+  color: var(--yuan-text);
+
+  &:hover {
+    background: var(--yuan-bg);
+    color: var(--yuan-hover);
+  }
+
+  &.active {
+    background: rgba(47, 74, 63, 0.08);
+    color: var(--yuan-green);
+    font-weight: 600;
+  }
+}
+
+// —— TOC ——
+#toc {
+  .toc-header {
+    color: var(--yuan-text);
+  }
+
+  .toc-wrapper::before {
+    background: var(--yuan-border);
+  }
+
+  .toc-marker {
+    background: var(--yuan-green);
+  }
+
+  .toc-link {
+    color: var(--yuan-muted);
+  }
+
+  .toc-item:hover > .toc-link {
+    color: var(--yuan-hover);
+  }
+
+  .toc-item.active > .toc-link {
+    color: var(--yuan-green);
+    font-weight: 600;
+  }
+
+  @media (min-width: $laptop) {
+    .has-toc & {
+      display: block;
+    }
+  }
+
+  @media print {
+    display: none !important;
+  }
+}
+
+// —— 导航 / 页脚 ——
+.vp-navbar,
+.navbar {
+  background: rgba(245, 242, 236, 0.92);
+  border-bottom: 1px solid var(--yuan-border);
+  box-shadow: none;
+
+  .nav-link:hover,
+  .vp-nav-link:hover {
+    color: var(--yuan-hover);
+  }
+
+  .nav-link.active,
+  .vp-nav-link.active,
+  .route-link-active {
+    color: var(--yuan-green);
+  }
+}
+
+[data-theme="dark"] {
+  .vp-navbar,
+  .navbar {
+    background: rgba(28, 26, 23, 0.92);
+  }
+}
+
+.vp-footer-wrapper,
+.footer-wrapper {
+  border-top: 1px solid var(--yuan-border);
+  background: var(--yuan-bg);
+  color: var(--yuan-muted);
+
+  a:hover {
+    color: var(--yuan-hover);
+  }
+}
+
+// —— 原有布局修补 ——
 .sidebar-links {
-    ul {
-  
-      &.sidebar-sub-headers {
-  
-        .has-toc & {
-          @media (min-width: $laptop) {
-            display: none;
-          }
+  ul {
+    &.sidebar-sub-headers {
+      .has-toc & {
+        @media (min-width: $laptop) {
+          display: none;
         }
       }
     }
+  }
 }
 
 .sidebar {
-    @media (min-width: $laptop) {
-        box-shadow: none;
-      }
+  @media (min-width: $laptop) {
+    box-shadow: none;
+  }
 }
 
 .theme-container {
-  
-    &.has-toc .page.blog {
-      @media (min-width: $laptop) {
-        // fix toc padding
-        padding-inline-end: 0;
-      }
+  &.has-toc .page.blog {
+    @media (min-width: $laptop) {
+      // fix toc padding
+      padding-inline-end: 0;
     }
+  }
 }
 
 .toggle-sidebar-wrapper {
-
-    @media (min-width: $laptop) {
-      display: none;
-    }
+  @media (min-width: $laptop) {
+    display: none;
+  }
 }
 
 .theme-container {
-  
-    .page {
-    
-  
-      @media (min-width: $laptop) {
-        padding-inline-end: calc(
-          100vw - var(--content-width) - var(--sidebar-space) - 6rem
-        );
+  .page {
+    @media (min-width: $laptop) {
+      padding-inline-end: calc(
+        100vw - var(--content-width) - var(--sidebar-space) - 6rem
+      );
+    }
+  }
+
+  // sidebar is disabled
+  &.no-sidebar {
+    &.has-toc {
+      .page {
+        // add padding for anchor
+        @media (min-width: $laptop) {
+          padding-inline-end: 16rem;
+        }
       }
     }
-  // sidebar is disabled
-    &.no-sidebar {
-
-        &.has-toc {
-        .page {
-            // add padding for anchor
-            @media (min-width: $laptop) {
-            padding-inline-end: 16rem;
-            }
-        }
-        }
-    }
+  }
 }
-  
-
-  
-  
-
-  

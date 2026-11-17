@@ -1,3 +1,17 @@
-// you can change colors here
-$theme-color: #a69b57f0;
-$card-shadow:#0a8db5e9 ;
+// 远起 · 头像/秋山主题（多轮设计师终稿 + 评审修订）
+// 锚点：陶赭马甲 #B06D44 · 草帽赭 #D9B368 · 墨绿缎带 #4A6753 · 雾奶油
+$theme-color: #2f4a3f; // 墨绿主色（链接/激活）
+$bg-color: #f5f2ec; // 雾奶油底
+$text-color: #3a2a22; // 暖棕正文，不用纯黑
+$card-shadow: rgba(58, 42, 34, 0.06);
+
+// 组件引用：
+// surface        #fbf8f2
+// muted          #7a6a5c
+// hover-orange   #9a5a35  ← 评审：比 #b06d44 更高对比
+// terracotta     #b06d44  ← 边框悬停/选区，不作小字
+// border         #e3dacb
+// code-bg        #ece8df
+// bq-border      #4a6753
+// ochre          #d9b368  ← 勿作文字色
+// berry          不进 UI
