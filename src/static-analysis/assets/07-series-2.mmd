@@ -25,5 +25,5 @@ flowchart TB
   XR -->|A 返回流 ret→b| RAb
   XR -.->|B 返回流 ret→c：图中存在，
 但无从 B 进入的匹配路径| RBc
-  style RBc fill:#f0f0f0,stroke:#999999,stroke-dasharray:5 3
-  style NOTE fill:#ffffff,stroke:#999999,stroke-dasharray:2 2
+  class RBc aux
+  class NOTE note

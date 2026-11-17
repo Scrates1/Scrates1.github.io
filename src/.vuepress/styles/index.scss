@@ -354,6 +354,13 @@ body,
   }
 }
 
+// —— 日夜两张图（![](a.svg#light) / ![](a.dark.svg#dark)）——
+// imgMark 只隐藏另一张 <img>；图各自包在 <figure> 里，连同图注一起隐藏，免得图注出现两次。
+[data-theme="light"] figure:has(> img[data-mode="darkmode-only"]),
+[data-theme="dark"] figure:has(> img[data-mode="lightmode-only"]) {
+  display: none;
+}
+
 // —— 原有布局修补 ——
 .sidebar-links {
   ul {

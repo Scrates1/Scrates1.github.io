@@ -136,6 +136,8 @@ export default hopeTheme({
       flowchart: true,
       gfm: true,
       imgLazyload: true,
+      // ![](a.svg#light) / ![](a.dark.svg#dark)：按站点日夜主题切换图片（静态分析系列的图用到）
+      imgMark: true,
       imgSize: true,
       include: true,
       katex: true,

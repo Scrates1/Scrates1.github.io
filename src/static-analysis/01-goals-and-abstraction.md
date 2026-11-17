@@ -195,7 +195,9 @@ O 丢掉了条件与来源的关联；U 只保留安全分支，漏掉真实危�
 
 将这些规则用于分析器，还需要构建程序表示、求解并解释结果：
 
-![静态分析的五个环节：表示、传播、求解、报告](assets/01-series-1.svg)
+![静态分析的五个环节：表示、传播、求解、报告](assets/01-series-1.svg#light)
+
+![静态分析的五个环节：表示、传播、求解、报告](assets/01-series-1.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/01-series-1.mmd)
 

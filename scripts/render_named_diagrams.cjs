@@ -1,33 +1,58 @@
-// Render src/static-analysis/assets/<name>.mmd to <name>.svg (plus a PNG preview in %TEMP%).
+// Render src/static-analysis/assets/<name>.mmd in the series' blueprint style, once per colour mode:
+//   <name>.svg       day figure    (preview: %TEMP%/<name>.png)
+//   <name>.dark.svg  night figure  (preview: %TEMP%/<name>.dark.png)
 // Usage: node scripts/render_named_diagrams.cjs 05-series-1 07-series-2
+//        node scripts/render_named_diagrams.cjs --all
 //
-// Uses playwright + mermaid from the local npx cache and headless Edge; the SVGs are
-// committed, so this only needs to run when a .mmd changes. Inspect the PNG before committing.
+// Every diagram must be listed in assets/diagram-manifest.json (name -> type). Colours and fonts
+// live in scripts/diagram-style/; the .mmd files only carry structure and semantic class names.
+// Uses playwright + mermaid from the local npx cache and headless Edge; the SVGs are committed,
+// so this only needs to run when a .mmd or the style changes. Inspect the PNGs before committing.
 const fs = require('fs');
 const path = require('path');
 const {chromium} = require(path.join(process.env.LOCALAPPDATA, 'npm-cache/_npx/e41f203b7505f1fb/node_modules/playwright'));
+const {modes, GRID, PAD, FONT, MEASURE_FONT, CJK_FONT} = require('./diagram-style/tokens.cjs');
+const {mermaidConfig, withTheme, QUOTE_STAND_IN} = require('./diagram-style/blueprint-theme.cjs');
+const {postprocess} = require('./diagram-style/svg-postprocess.cjs');
+
 const assets = path.resolve(__dirname, '..', 'src', 'static-analysis', 'assets');
 const mermaidPath = path.join(process.env.LOCALAPPDATA, 'npm-cache/_npx/668c188756b835f3/node_modules/.mermaid-lyaZkmqu/dist/mermaid.min.js');
-const names = process.argv.slice(2);
-if (!names.length) { console.error('no diagram names given'); process.exit(2); }
+const manifest = JSON.parse(fs.readFileSync(path.join(assets, 'diagram-manifest.json'), 'utf8'));
+
+const args = process.argv.slice(2);
+const names = args.includes('--all') ? Object.keys(manifest) : args;
+if (!names.length) { console.error('no diagram names given (or use --all)'); process.exit(2); }
+const unknown = names.filter(n => !manifest[n]);
+if (unknown.length) { console.error('not in diagram-manifest.json: ' + unknown.join(', ')); process.exit(2); }
+const sources = fs.readdirSync(assets).filter(f => f.endsWith('.mmd')).map(f => f.slice(0, -4));
+const unlisted = sources.filter(n => !manifest[n]);
+if (unlisted.length) { console.error('missing from diagram-manifest.json: ' + unlisted.join(', ')); process.exit(2); }
+
 (async () => {
   const browser = await chromium.launch({executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', headless: true});
   try {
-    const page = await browser.newPage({viewport: {width: 1800, height: 1400}});
-    await page.setContent('<html><meta charset="utf-8"><body style="margin:20px;background:white"><div id="diagram" style="display:inline-block"></div></body></html>');
-    await page.addScriptTag({path: mermaidPath});
-    await page.evaluate(() => mermaid.initialize({startOnLoad: false, theme: 'base', fontFamily: 'Microsoft YaHei, sans-serif', themeVariables: {fontSize: '17px', fontFamily: 'Microsoft YaHei, sans-serif'}, flowchart: {htmlLabels: false, curve: 'linear', nodeSpacing: 35, rankSpacing: 45, padding: 20, wrappingWidth: 260, subGraphTitleMargin: {top: 14, bottom: 24}, useMaxWidth: false}}));
-    let i = 0;
-    for (const name of names) {
-      const code = fs.readFileSync(path.join(assets, name + '.mmd'), 'utf8');
-      const svg = await page.evaluate(async ({code, id}) => {
-        const r = await mermaid.render(id, code);
-        document.querySelector('#diagram').innerHTML = r.svg;
-        return new XMLSerializer().serializeToString(document.querySelector('#diagram svg'));
-      }, {code, id: 'named' + (i++)});
-      fs.writeFileSync(path.join(assets, name + '.svg'), svg);
-      await page.locator('#diagram').screenshot({path: path.join(process.env.TEMP, name + '.png')});
-      console.log(name + ': rendered');
+    for (const t of modes) {
+      for (const name of names) {
+        // A fresh page per figure: Mermaid keeps the first configuration it is initialised with.
+        const page = await browser.newPage({viewport: {width: 1800, height: 1400}});
+        await page.setContent(`<html><meta charset="utf-8"><body style="margin:24px;background:${t.page}"><div id="diagram" style="display:inline-block"></div></body></html>`);
+        await page.addScriptTag({path: mermaidPath});
+        const code = withTheme(name, fs.readFileSync(path.join(assets, name + '.mmd'), 'utf8'), t);
+        await page.evaluate(async ({code, id, config}) => {
+          mermaid.initialize(config);
+          await document.fonts.ready;
+          const r = await mermaid.render(id, code);
+          document.querySelector('#diagram').innerHTML = r.svg;
+        }, {code, id: 'sa-' + name + (t.name === 'dark' ? '-dark' : ''), config: mermaidConfig(t, manifest[name])});
+        const svg = await page.evaluate(postprocess, {t, grid: GRID, pad: PAD, font: FONT, measureFont: MEASURE_FONT, cjkFont: CJK_FONT, quoteStandIn: QUOTE_STAND_IN});
+        if (svg.includes('<foreignObject') || svg.includes(MEASURE_FONT.split(',')[0])) throw new Error(`${name}: HTML label or layout font left in the output`);
+        // SVG text labels do not decode HTML entities. Only #quot; is handled (see QUOTE_STAND_IN).
+        if (/&amp;(#?\w+);/.test(svg)) throw new Error(`${name}: an HTML entity such as &quot; shows up literally in a label; for a double quote write #quot; in the .mmd`);
+        fs.writeFileSync(path.join(assets, name + t.suffix + '.svg'), svg);
+        await page.locator('#diagram').screenshot({path: path.join(process.env.TEMP, name + t.suffix + '.png')});
+        await page.close();
+        console.log(`${name}${t.suffix}: rendered`);
+      }
     }
   } finally { await browser.close(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });

@@ -53,7 +53,9 @@ IDE 要求环境变换对合并满足分配律，并满足收敛条件（跳转�
 
 `p→a` 表示 a 依赖 p，`f(t)=t+2` 则计算值的变化。也可写成 `λt.t+2`，读作“将 t 映射到 t 加二的函数”；小写 λ 是匿名函数记号，大写 Λ 则是 IFDS 的辅助事实。
 
-![沿事实依赖组合加二与乘五的值变换](assets/08-series-1.svg)
+![沿事实依赖组合加二与乘五的值变换](assets/08-series-1.svg#light)
+
+![沿事实依赖组合加二与乘五的值变换](assets/08-series-1.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/08-series-1.mmd)
 

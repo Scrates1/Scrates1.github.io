@@ -20,7 +20,9 @@ category:
 
 ## 知识总览
 
-![系列知识总览](assets/00-series-1.svg)
+![系列知识总览](assets/00-series-1.svg#light)
+
+![系列知识总览](assets/00-series-1.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/00-series-1.mmd)
 
@@ -51,7 +53,9 @@ category:
 
 依赖图中的实线表示前置知识，虚线表示比较部分的额外前提。09、10、11 是独立专题，05 也不是学习过程间污点传播的必修前提。
 
-![阅读依赖图](assets/00-series-2.svg)
+![阅读依赖图](assets/00-series-2.svg#light)
+
+![阅读依赖图](assets/00-series-2.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/00-series-2.mmd)
 

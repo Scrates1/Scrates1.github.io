@@ -15,9 +15,6 @@ flowchart TB
     STORE --> ANALYZE --> REPORT["问题报告与审查结果<br/>不是⑥目标代码生成"]
     NOTE["这是公开流程的职责映射<br/>并非内部六个模块的精确对应<br/>分析分支不以生成目标程序为目的"]
     NOTE -.-> CA
-    classDef front fill:#eaf2ff,stroke:#527bbd,color:#142c50;
-    classDef mid fill:#e7f5ed,stroke:#40855b,color:#163823;
-    classDef note fill:#f4f4f4,stroke:#777,color:#333;
     class CAP,TRANSLATE,STORE front;
     class ANALYZE mid;
     class INPUT,BUILD,PRODUCT,REPORT,NOTE note;

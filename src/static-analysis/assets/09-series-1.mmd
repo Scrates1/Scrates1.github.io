@@ -4,3 +4,5 @@ flowchart TD
   B --> D["尝试进入 sink：β 且 非 β"]
   D --> X[条件冲突，停止此分支]
   C --> S["进入 sink：y 仍为 safe"]
+  class X aux
+  class S merge

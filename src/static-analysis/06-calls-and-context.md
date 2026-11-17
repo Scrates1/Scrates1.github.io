@@ -49,7 +49,9 @@ sink(c);
 
 **ICFG（过程间控制流图，interprocedural CFG）**用调用边和返回边连接各方法的 CFG：**调用点（call site）**连向被调入口，被调出口连向调用后继续执行的**返回点（return site）**。图中 A、B 分别对应 `retA`、`retB`。
 
-![两个调用点共享 id 方法，返回分别匹配 retA 和 retB](assets/06-series-1.svg)
+![两个调用点共享 id 方法，返回分别匹配 retA 和 retB](assets/06-series-1.svg#light)
+
+![两个调用点共享 id 方法，返回分别匹配 retA 和 retB](assets/06-series-1.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/06-series-1.mmd)
 

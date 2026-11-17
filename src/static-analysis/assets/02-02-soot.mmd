@@ -15,10 +15,6 @@ flowchart TB
     IR --> GRAPH
     ANALYZE --> REPORT["分析结果<br/>例如各程序点的污点事实"]
     ANALYZE -. "需要输出程序时" .-> EMIT["Soot 输出后端<br/>例如生成变换后的字节码<br/>对应⑥的代码生成职责"]
-    classDef front fill:#eaf2ff,stroke:#527bbd,color:#142c50;
-    classDef mid fill:#e7f5ed,stroke:#40855b,color:#163823;
-    classDef back fill:#fff1dd,stroke:#b07829,color:#51330d;
-    classDef note fill:#f4f4f4,stroke:#777,color:#333;
     class LOAD,IR front;
     class GRAPH,ANALYZE mid;
     class EMIT back;

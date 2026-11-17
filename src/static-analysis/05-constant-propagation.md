@@ -48,7 +48,9 @@ L = {⊥} ∪ {所有整数常量} ∪ {⊤}
 
 `⊑` 沿用第 03 篇的读法“不比……更粗”。不同常量互不可比。这种“底、一层互不可比的元素、顶”三层结构在文献中叫**平坦格（flat lattice）**，常量传播用它时也称 constant propagation lattice：
 
-![单常量域的平坦格：所有常量位于同一层，互不可比](assets/05-series-1.svg)
+![单常量域的平坦格：所有常量位于同一层，互不可比](assets/05-series-1.svg#light)
+
+![单常量域的平坦格：所有常量位于同一层，互不可比](assets/05-series-1.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/05-series-1.mmd)
 

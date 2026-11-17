@@ -1,0 +1,21 @@
+{
+  "00-series-1": "overview",
+  "00-series-2": "overview",
+  "01-series-1": "process",
+  "02-01-compiler-stages": "process",
+  "02-02-soot": "process",
+  "02-03-coverity": "process",
+  "02-04-clang": "process",
+  "02-05-jimple-cfg": "cfg",
+  "02-06-basic-blocks": "cfg",
+  "03-series-1": "cfg",
+  "04-series-1": "lattice",
+  "05-series-1": "lattice",
+  "06-series-1": "cfg",
+  "07-series-1": "lattice",
+  "07-series-2": "ifds",
+  "08-series-1": "process",
+  "09-series-1": "process",
+  "11-series-1": "points-to",
+  "11-series-2": "points-to"
+}

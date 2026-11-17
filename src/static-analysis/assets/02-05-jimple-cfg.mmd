@@ -10,9 +10,6 @@ flowchart TB
     N4 -->|"flag=true：不跳转"| N5
     N4 -->|"flag=false：跳转"| N6
     N5 --> N6 --> N7
-    classDef statement fill:#eaf2ff,stroke:#527bbd,color:#142c50;
-    classDef branch fill:#fff1dd,stroke:#b07829,color:#51330d;
-    classDef merge fill:#e7f5ed,stroke:#40855b,color:#163823;
     class N1,N2,N3,N5,N7 statement;
     class N4 branch;
     class N6 merge;

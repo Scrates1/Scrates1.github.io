@@ -20,10 +20,6 @@ flowchart TB
     end
     PARSE --> CFG
     ENGINE --> REPORT["缺陷报告<br/>此路线不经过 LLVM IR 优化与目标代码生成"]
-    classDef front fill:#eaf2ff,stroke:#527bbd,color:#142c50;
-    classDef mid fill:#e7f5ed,stroke:#40855b,color:#163823;
-    classDef back fill:#fff1dd,stroke:#b07829,color:#51330d;
-    classDef note fill:#f4f4f4,stroke:#777,color:#333;
     class PP,PARSE,IR front;
     class OPT,CFG,ENGINE mid;
     class GEN back;
