@@ -1,6 +1,6 @@
-flowchart LR
+flowchart TB
   subgraph CS[1-调用点 + 上下文敏感堆：分配点带调用点]
-    direction LR
+    direction TB
     g1[h1] ==> oA["o3[A]"]
     g2[h2] ==> oB["o3[B]"]
     oA --- oAf["o3[A].f"]
@@ -10,7 +10,7 @@ flowchart LR
     oBf -.->|"load 到 sink：无对象"| k2[sink]
   end
   subgraph CI[上下文不敏感：一个分配点]
-    direction LR
+    direction TB
     h1[h1] ==> o3["o3
 make 中的 new Holder"]
     h2[h2] ==> o3

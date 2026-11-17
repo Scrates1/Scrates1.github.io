@@ -1,4 +1,4 @@
-flowchart LR
+flowchart TB
   A["调用 A：b = id(a)"] -->|调用| E[id 入口：参数 p]
   B["调用 B：c = id(#quot;safe#quot;)"] -->|调用| E
   E --> X[id 出口：return p]
