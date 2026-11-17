@@ -8,6 +8,10 @@ heroText: 远起
 heroFullScreen: false
 tagline: 蜉蝣天地，且行且喜
 bgImage: /hero-cinematic/quiet.jpg
+bgImageStyle:
+  background-position: center bottom
+  background-size: cover
+  background-repeat: no-repeat
 heroAlt: 远起
 heroImageStyle:
   border-radius: 50%

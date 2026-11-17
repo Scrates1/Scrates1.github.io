@@ -77,13 +77,38 @@ $laptop: 1280px;
 .vp-blog-hero {
   position: relative;
   overflow: hidden;
-  min-height: clamp(440px, 54vh, 560px);
+  // 盖过主题默认 height: 450px，让秋山有足够落幅
+  height: clamp(480px, 58vh, 620px) !important;
   color: var(--yuan-text);
 
+  // 底边柔化进页面底色，避免山脚硬切
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    height: 96px;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      rgba(245, 242, 236, 0),
+      var(--yuan-bg)
+    );
+  }
+
   .vp-blog-mask {
-    filter: saturate(0.95) brightness(1.03) contrast(0.98);
-    background-position: center 28% !important;
+    // 山在图下部：贴底对齐，上方留白给标题
+    background-position: center bottom !important;
     background-size: cover !important;
+    filter: none;
+
+    // 关掉主题默认浅灰蒙版（会把水彩洗脏）
+    &::after {
+      background: transparent;
+      opacity: 0;
+    }
   }
 
   .vp-blog-hero-title {
@@ -105,6 +130,12 @@ $laptop: 1280px;
     border: 2px solid var(--yuan-surface);
     box-shadow: 0 6px 20px rgba(58, 42, 34, 0.12);
   }
+}
+
+// 首页正文区与英雄底色对齐，避免奶油→纯白断层
+.vp-page.vp-blog,
+.vp-blog {
+  background: var(--yuan-bg);
 }
 
 .vp-article-list {
