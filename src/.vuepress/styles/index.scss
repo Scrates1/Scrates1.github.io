@@ -23,7 +23,7 @@ $laptop: 1280px;
   --theme-color-light: #4a6753;
 }
 
-[data-theme="dark"] {
+html[data-theme="dark"] {
   --yuan-bg: #1c1a17;
   --yuan-surface: #25221e;
   --yuan-text: #ebe4d6;
@@ -36,11 +36,7 @@ $laptop: 1280px;
   --yuan-code: #2a2621;
 
   --theme-color: #8fb09c;
-  --bg-color: #1c1a17;
-  --bg-color-secondary: #25221e;
-  --text-color: #ebe4d6;
-  --text-color-light: #a89a88;
-  --border-color: #3a342d;
+  --theme-color-light: #8fb09c;
   --code-bg-color: #2a2621;
 }
 
@@ -61,7 +57,7 @@ $laptop: 1280px;
   --info-code-bg-color: rgba(47, 74, 63, 0.1);
 }
 
-[data-theme="dark"] {
+html[data-theme="dark"] {
   --tip-title-color: #c5d6cb;
   --tip-bg-color: #243028;
   --tip-border-color: #8fb09c;
@@ -91,11 +87,7 @@ $laptop: 1280px;
     z-index: 1;
     height: 96px;
     pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      rgba(245, 242, 236, 0),
-      var(--yuan-bg)
-    );
+    background: linear-gradient(to bottom, transparent, var(--yuan-bg));
   }
 
   .vp-blog-mask {
@@ -104,7 +96,7 @@ $laptop: 1280px;
     background-size: cover !important;
     filter: none;
 
-    // 关掉主题默认浅灰蒙版（会把水彩洗脏）
+    // 浅色：关掉灰蒙；暗色：压暗奶油背景图
     &::after {
       background: transparent;
       opacity: 0;
@@ -132,6 +124,33 @@ $laptop: 1280px;
   }
 }
 
+html[data-theme="dark"] {
+  .vp-blog-hero {
+    .vp-blog-mask {
+      filter: brightness(0.45) saturate(0.85) contrast(1.05);
+
+      &::after {
+        background: rgba(28, 26, 23, 0.45);
+        opacity: 1;
+      }
+    }
+
+    .vp-blog-hero-title,
+    .vp-blog-hero-description {
+      text-shadow: 0 1px 14px rgba(28, 26, 23, 0.85);
+    }
+  }
+
+  .vp-sidebar-link.active,
+  .sidebar-link.active {
+    background: rgba(143, 176, 156, 0.12);
+  }
+
+  .theme-hope-content a {
+    text-decoration-color: rgba(143, 176, 156, 0.55);
+  }
+}
+
 // 首页正文区与英雄底色对齐，避免奶油→纯白断层
 .vp-page.vp-blog,
 .vp-blog {
@@ -150,18 +169,18 @@ $laptop: 1280px;
 .vp-project-panel {
   .vp-project-card {
     box-shadow: none !important;
-    border: 1px solid rgba(196, 178, 152, 0.38);
+    border: 1px solid var(--yuan-border);
     border-radius: 10px;
-    background: rgba(251, 248, 242, 0.88) !important;
+    background: var(--yuan-surface) !important;
 
     &:hover {
-      background: #fcf6ec !important;
+      background: var(--yuan-bg) !important;
       border-color: var(--yuan-terra);
       transform: translateY(-1px);
     }
 
     &[class*="project"] {
-      background: rgba(251, 248, 242, 0.88) !important;
+      background: var(--yuan-surface) !important;
     }
   }
 
@@ -299,7 +318,7 @@ $laptop: 1280px;
 // —— 导航 / 页脚 ——
 .vp-navbar,
 .navbar {
-  background: rgba(245, 242, 236, 0.92);
+  background: color-mix(in srgb, var(--yuan-bg) 92%, transparent);
   border-bottom: 1px solid var(--yuan-border);
   box-shadow: none;
 
@@ -315,11 +334,13 @@ $laptop: 1280px;
   }
 }
 
-[data-theme="dark"] {
-  .vp-navbar,
-  .navbar {
-    background: rgba(28, 26, 23, 0.92);
-  }
+// 整页底色跟随远起 token，避免暗色下奶油底露馅
+body,
+.theme-container,
+.vp-page,
+.vp-page.vp-blog,
+.vp-blog {
+  background: var(--yuan-bg);
 }
 
 .vp-footer-wrapper,

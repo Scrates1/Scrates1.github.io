@@ -1,17 +1,38 @@
-// 远起 · 头像/秋山主题（多轮设计师终稿 + 评审修订）
-// 锚点：陶赭马甲 #B06D44 · 草帽赭 #D9B368 · 墨绿缎带 #4A6753 · 雾奶油
-$theme-color: #2f4a3f; // 墨绿主色（链接/激活）
-$bg-color: #f5f2ec; // 雾奶油底
-$text-color: #3a2a22; // 暖棕正文，不用纯黑
-$card-shadow: rgba(58, 42, 34, 0.06);
+// 远起 · 头像/秋山主题（含暗色）
+// Hope 要求 bg/text/border 等为 light/dark map，不能写成单色
+$theme-color: #2f4a3f;
+
+$text-color: (
+  light: #3a2a22,
+  dark: #ebe4d6,
+);
+
+$bg-color: (
+  light: #f5f2ec,
+  dark: #1c1a17,
+);
+
+$bg-color-secondary: (
+  light: #fbf8f2,
+  dark: #25221e,
+);
+
+$bg-color-tertiary: (
+  light: #ece8df,
+  dark: #2a2621,
+);
+
+$border-color: (
+  light: #e3dacb,
+  dark: #3a342d,
+);
+
+$card-shadow: (
+  light: rgba(58, 42, 34, 0.06),
+  dark: rgba(0, 0, 0, 0.35),
+);
 
 // 组件引用：
-// surface        #fbf8f2
-// muted          #7a6a5c
-// hover-orange   #9a5a35  ← 评审：比 #b06d44 更高对比
-// terracotta     #b06d44  ← 边框悬停/选区，不作小字
-// border         #e3dacb
-// code-bg        #ece8df
-// bq-border      #4a6753
-// ochre          #d9b368  ← 勿作文字色
-// berry          不进 UI
+// hover-orange   #9a5a35 / dark #d9926a
+// terracotta     #b06d44
+// green-soft     #4a6753 / dark #8fb09c
