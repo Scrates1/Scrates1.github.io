@@ -16,4 +16,4 @@ VuePress 2 + vuepress-theme-hope 博客。`src/` 是站点源，push 到 `main` 
 
 - 编辑 Markdown 只用编辑器/编辑工具做定点修改，不用 shell 批量替换（曾因此损坏三篇正文）。
 - 不把有版权的 PDF 入库。
-- 提交署名使用仓库级配置（`Scrates1 <Scrates1@users.noreply.github.com>`），不改全局 git 配置。
+- 提交署名使用仓库级 git 配置，不改全局 git 配置。
