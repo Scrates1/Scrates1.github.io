@@ -124,7 +124,7 @@ calc 内部保存 `p→a`、`p→b`，出口保存 `p→ret`。部分内部条�
 | 路线 | 做法 | 减少的成本 | 代表 |
 | :--- | :--- | :--- | :--- |
 | 稀疏化 | 事实只在定义与使用它的语句之间传播，跳过与该事实无关的程序点 | 恒等边的传播次数与路径边数量 | He 等，*Performance-Boosting Sparsification of the IFDS Algorithm*（ASE 2020）；[SVF](https://github.com/SVF-tools/SVF) 是另一类基于稀疏值流图的框架 |
-| 按需求解 | 只从查询点出发，向前或向后探索到足以回答的范围 | 与查询无关的整程序传播 | [Boomerang](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2016.22) 的按需别名查询；[同步下推系统](https://www.bodden.de/pubs/sab19context.pdf)同时处理调用与字段两种括号（[第 07 篇](07-ifds.md)第 8 节） |
+| 按需求解 | 只从查询点出发，向前或向后探索到足以回答的范围 | 与查询无关的整程序传播 | [Boomerang](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2016.22) 的按需别名查询；[同步下推系统](https://www.bodden.de/pubs/sab19context.pdf)同时处理调用与字段两种括号（[第 07 篇](07-ifds.md)第 6.3 节） |
 | 摘要复用 | 跨方法复用摘要，库方法预先算好摘要 | 重复分析的工作量 | FlowDroid 与 StubDroid 的方法摘要 |
 | 并行与增量 | 多线程或 GPU 并行求解；代码改动后只重算受影响部分 | 挂钟时间；增量还减少重算的工作量 | Reviser（[Arzt 与 Bodden，ICSE 2014](https://www.bodden.de/pubs/ab14reviser.pdf)）的增量 IFDS/IDE；Arzt 2021、He 等 2023 的多线程求解与回收；Yu 等 2020 的 GPU 并行 |
 

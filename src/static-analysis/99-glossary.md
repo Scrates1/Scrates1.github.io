@@ -116,11 +116,11 @@ category:
 | 辅助事实 Λ | zero fact, Λ | 表示“无条件成立”的人为事实，用来生成新事实 | `Λ→x` 表示 `x=input()` |
 | 表示关系 | representation relation | 一条语句的流函数拆成的单事实边集合 | `y=x`：`x→x`、`x→y` |
 | 爆炸超图 | ESG, exploded supergraph | 节点是 `(程序点, 事实)`，边是单事实传播 | `(A 之前, a) → (entry, p)` |
-| 四类流函数 | normal / call / return / call-to-return | 方法内 / 实参到形参 / 返回值到接收变量 / 旁路 | 见第 07 篇第 5 节表 |
+| 四类流函数 | normal / call / return / call-to-return | 方法内 / 实参到形参 / 返回值到接收变量 / 旁路 | 见第 07 篇第 3.3 节表 |
 | 路径边 | path edge | “从方法入口带着 d₁ 进来，现在在 n 处是 d₂” | `〈p, exit, ret〉` |
 | Incoming | incoming | 等待某个被调入口事实结果的调用记录 | A 等待 `(id, p)` |
 | 出口摘要 Summary | summary edge | 某入口事实能产生哪些出口事实；到达出口的路径边 | `p→ret` |
-| tabulation 算法 | tabulation | IFDS 的求解算法，逐条登记路径边与摘要 | 第 07 篇第 7 节伪代码 |
+| tabulation 算法 | tabulation | IFDS 的求解算法，逐条登记路径边与摘要 | 第 07 篇第 4.3 节伪代码 |
 | 可实现路径 | realizable path | 每次返回都回到匹配调用点的路径，允许有尚未返回的调用 | A 进 id 必须回到 retA |
 | MRP / MOP | meet over all realizable / all paths | 只沿可实现路径合并 / 沿所有路径合并 | IFDS 求的是 MRP，分配律成立时精确等于它 |
 | CFL 可达性 | CFL-reachability | 路径上标签串须属于某个上下文无关语言 | 调用返回的括号匹配 |

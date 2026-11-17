@@ -1,29 +1,32 @@
 flowchart TB
-  subgraph Callee[被调 id]
-    direction TB
-    EP["(entry, p)"]
-    XR["(exit, ret)"]
+  subgraph N0[main：A 之前]
+    A0[a]
+  end
+  subgraph ID[被调 id]
     NOTE["B 的调用流不产生 (entry, p)：
 常量实参没有事实可映射"]
+    EP["(entry, p)"]
+    XR["(exit, ret)"]
   end
-  subgraph Caller[调用者 main：程序点自上而下]
-    direction TB
-    P0a["(A 之前, a)"]
-    RAa["(retA = B 之前, a)"]
-    RAb["(retA = B 之前, b)"]
-    RBa["(retB, a)"]
-    RBb["(retB, b)"]
-    RBc["(retB, c)"]
+  subgraph N1[main：retA，也是 B 之前]
+    A1[a]
+    B1[b]
   end
-  P0a -->|调用到返回：a 保留| RAa
-  RAa -->|调用到返回| RBa
-  RAb -->|调用到返回| RBb
-  P0a -->|A 调用流 a→p| EP
+  subgraph N2[main：retB]
+    A2[a]
+    B2[b]
+    C2[c]
+  end
+  A0 -->|A 调用流 a→p| EP
+  NOTE -.- EP
   EP -->|普通流 p→ret| XR
   EP ==>|路径边 〈p, exit, ret〉
 出口处即摘要 p→ret| XR
-  XR -->|A 返回流 ret→b| RAb
-  XR -.->|B 返回流 ret→c：图中存在，
-但无从 B 进入的匹配路径| RBc
-  class RBc aux
+  XR -->|A 返回流 ret→b| B1
+  A0 ---->|调用到返回：a 保留| A1
+  A1 --->|调用到返回| A2
+  B1 --->|调用到返回| B2
+  XR -...->|B 返回流 ret→c：图中存在，
+但无从 B 进入的匹配路径| C2
+  class C2 aux
   class NOTE note
