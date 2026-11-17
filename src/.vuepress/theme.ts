@@ -26,7 +26,10 @@ export default hopeTheme({
 
   logo: "/logo.jpg",
 
-  repo: "Scrates1/Scrates1.github.io",
+  // 导航栏 GitHub 图标指向个人主页；「编辑此页」仍走 docsRepo 指向本站仓库
+  repo: "https://github.com/Scrates1",
+
+  docsRepo: "Scrates1/Scrates1.github.io",
 
   docsBranch: "main",
 
