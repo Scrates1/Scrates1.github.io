@@ -44,7 +44,7 @@ if (unlisted.length) { console.error('missing from diagram-manifest.json: ' + un
           const r = await mermaid.render(id, code);
           document.querySelector('#diagram').innerHTML = r.svg;
         }, {code, id: 'sa-' + name + (t.name === 'dark' ? '-dark' : ''), config: mermaidConfig(t, manifest[name])});
-        const svg = await page.evaluate(postprocess, {t, grid: GRID, pad: PAD, font: FONT, measureFont: MEASURE_FONT, cjkFont: CJK_FONT, quoteStandIn: QUOTE_STAND_IN});
+        const svg = await page.evaluate(postprocess, {t, type: manifest[name], grid: GRID, pad: PAD, font: FONT, measureFont: MEASURE_FONT, cjkFont: CJK_FONT, quoteStandIn: QUOTE_STAND_IN});
         if (svg.includes('<foreignObject') || svg.includes(MEASURE_FONT.split(',')[0])) throw new Error(`${name}: HTML label or layout font left in the output`);
         // SVG text labels do not decode HTML entities. Only #quot; is handled (see QUOTE_STAND_IN).
         if (/&amp;(#?\w+);/.test(svg)) throw new Error(`${name}: an HTML entity such as &quot; shows up literally in a label; for a double quote write #quot; in the .mmd`);

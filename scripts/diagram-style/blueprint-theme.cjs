@@ -22,6 +22,8 @@ const CLASS_ROLES = {
 // Layout knobs per diagram type (see assets/diagram-manifest.json).
 const TYPE_FLOWCHART = {
   overview: {nodeSpacing: 30, rankSpacing: 48},
+  // flowchart LR with the root on the left; links are redrawn as right-angle connectors.
+  tree: {nodeSpacing: 20, rankSpacing: 56},
   process: {nodeSpacing: 35, rankSpacing: 45},
   cfg: {nodeSpacing: 40, rankSpacing: 45},
   lattice: {nodeSpacing: 40, rankSpacing: 50},

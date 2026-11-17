@@ -1,8 +1,9 @@
 // Runs inside the browser page (Playwright serialises the function), on the SVG Mermaid just
 // rendered into #diagram. It never moves nodes or renames ids: scripts/check_series.py reads
-// node coordinates from the committed SVGs.
+// node coordinates from the committed SVGs. Links are left as laid out too, except in figures
+// of type "tree" (see elbowLinks).
 
-function postprocess({t, grid, pad, font, measureFont, cjkFont, quoteStandIn}) {
+function postprocess({t, type, grid, pad, font, measureFont, cjkFont, quoteStandIn}) {
   const NS = 'http://www.w3.org/2000/svg';
   const svg = document.querySelector('#diagram svg');
   const el = (tag, attrs) => {
@@ -67,6 +68,70 @@ function postprocess({t, grid, pad, font, measureFont, cjkFont, quoteStandIn}) {
       titles.append(label);
     });
     svg.append(titles);
+
+    if (type === 'tree') elbowLinks();
+  }
+
+  // Tree figures (flowchart LR, parent on the left): dagre centres each column and fans the
+  // links out as long diagonals. Align every column on its left edge and redraw the links as
+  // right-angle connectors: out of the parent's right side, along one trunk, into each child's
+  // left side. Nodes only move sideways within their column.
+  function elbowLinks() {
+    const nodes = new Map();
+    const ranks = new Map();
+    svg.querySelectorAll('g.node').forEach(n => {
+      const id = /flowchart-(.+)-\d+$/.exec(n.id);
+      const at = /^translate\(\s*([-\d.]+)[ ,]+([-\d.]+)\s*\)$/.exec(n.getAttribute('transform') || '');
+      if (!id || !at) throw new Error(`tree: unexpected node ${n.id}`);
+      nodes.set(id[1], n);
+      const item = {n, x: +at[1], y: +at[2], left: +at[1] + n.getBBox().x};
+      const key = Math.round(item.x);
+      ranks.set(key, [...(ranks.get(key) || []), item]);
+    });
+    for (const rank of ranks.values()) {
+      const left = Math.min(...rank.map(i => i.left));
+      for (const i of rank) i.n.setAttribute('transform', `translate(${+(i.x + left - i.left).toFixed(2)}, ${i.y})`);
+    }
+    const links = [];
+    svg.querySelectorAll('path.flowchart-link').forEach(path => {
+      const ends = /^L_(.+)_\d+$/.exec(path.dataset.id || '');
+      if (!ends) throw new Error('tree: link without a data-id');
+      // "L_<from>_<to>_<n>": node ids may contain underscores, so try every split.
+      const parts = ends[1].split('_');
+      let from, to;
+      for (let i = 1; i < parts.length && !from; i++) {
+        const a = parts.slice(0, i).join('_'), b = parts.slice(i).join('_');
+        if (nodes.has(a) && nodes.has(b)) { from = nodes.get(a); to = nodes.get(b); }
+      }
+      if (!from) throw new Error(`tree: cannot tell which nodes ${path.dataset.id} joins`);
+      const toPath = path.getScreenCTM().inverse();
+      const box = n => {
+        const b = n.getBBox(), m = toPath.multiply(n.getScreenCTM());
+        return {left: m.e + b.x, right: m.e + b.x + b.width, mid: m.f + b.y + b.height / 2};
+      };
+      const p = box(from), c = box(to);
+      if (c.left <= p.right) throw new Error(`tree: ${path.dataset.id} does not run left to right`);
+      links.push({path, from, p, c});
+    });
+    // Trunks of one column share an x: a fixed step before the (left-aligned) children.
+    const STEP = 28;
+    const families = new Map();
+    for (const l of links) families.set(l.from, [...(families.get(l.from) || []), l]);
+    const n = v => +v.toFixed(2);
+    for (const family of families.values()) {
+      const {p} = family[0];
+      const x = family[0].c.left - STEP;
+      if (x <= p.right) throw new Error('tree: no room for a trunk; raise rankSpacing for type "tree"');
+      const ys = [p.mid, ...family.map(l => l.c.mid)];
+      // The first link also carries the stub out of the parent and the trunk, so no two
+      // strokes overlap (overlapping anti-aliased strokes read as a heavier line).
+      const shared = `M${n(p.right)},${n(p.mid)}H${n(x)}M${n(x)},${n(Math.min(...ys))}V${n(Math.max(...ys))}`;
+      family.forEach((l, i) => {
+        l.path.setAttribute('d', `${i ? '' : shared}M${n(x)},${n(l.c.mid)}H${n(l.c.left)}`);
+        l.path.removeAttribute('data-points');
+      });
+    }
+    css += `#${svg.id} .flowchart-link{stroke-linecap:square;}`;
   }
   const style = document.createElementNS(NS, 'style');
   style.textContent = css;
