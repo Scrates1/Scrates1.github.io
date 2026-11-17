@@ -11,6 +11,8 @@ export default hopeTheme({
     url: "https://Scrates1.github.io",
   },
 
+  favicon: "/favicon.ico",
+
   // 减少主题默认装饰，整体更干净
   pure: true,
 

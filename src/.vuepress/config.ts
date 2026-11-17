@@ -21,6 +21,11 @@ export default defineUserConfig({
 
   clientConfigFile: path.resolve(__dirname, "./client.ts"),
 
+  head: [
+    ["link", { rel: "icon", href: "/favicon.ico", sizes: "any" }],
+    ["link", { rel: "icon", href: "/favicon.png", type: "image/png" }],
+  ],
+
   shouldPrefetch: false,
 
   // 暂不发布：编译系列 01/02 是 MOOC 课件截图笔记（版权 + 非原创），
