@@ -15,6 +15,21 @@ $laptop: 1280px;
   --yuan-border: #e3dacb;
   --yuan-code: #ece8df;
 
+  // reading rhythm (blog density)
+  --yuan-content-lh: 1.8;
+  --yuan-content-p-gap: 1.15em;
+  --yuan-heading-gap-after: 0.55em;
+  --yuan-list-item-gap: 0.35em;
+  --yuan-callout-pad: 0.85em 1.1em;
+  --yuan-table-cell-pad: 0.55em 0.85em;
+  --yuan-card-pad: 20px 24px;
+  --yuan-card-title-gap: 10px;
+  --yuan-card-excerpt-size: 15px;
+  --yuan-card-excerpt-lh: 1.65;
+  --yuan-card-excerpt-p-gap: 0.55em;
+  --yuan-card-list-gap: 1.1rem;
+  --yuan-card-meta-gap: 0.75em;
+
   --bg-color-secondary: #fbf8f2;
   --bg-color-tertiary: #ece8df;
   --text-color-light: #7a6a5c;
@@ -158,11 +173,36 @@ html[data-theme="dark"] {
 }
 
 .vp-article-list {
+  .vp-article-wrapper {
+    margin-bottom: var(--yuan-card-list-gap);
+  }
+
   .vp-article-item {
     box-shadow: none !important;
     border: 1px solid var(--yuan-border);
     border-radius: 10px;
     background: var(--yuan-surface);
+    padding: var(--yuan-card-pad);
+
+    .vp-article-title {
+      margin-bottom: var(--yuan-card-title-gap);
+    }
+
+    .vp-article-excerpt {
+      font-size: var(--yuan-card-excerpt-size);
+      line-height: var(--yuan-card-excerpt-lh);
+      color: var(--yuan-muted);
+
+      p {
+        margin-block: var(--yuan-card-excerpt-p-gap);
+        font-size: inherit;
+        line-height: inherit;
+      }
+    }
+
+    .page-info {
+      margin-top: var(--yuan-card-meta-gap);
+    }
   }
 }
 
@@ -196,6 +236,35 @@ html[data-theme="dark"] {
 
 // —— 文档正文 ——
 .theme-hope-content {
+  line-height: var(--yuan-content-lh);
+
+  p {
+    line-height: var(--yuan-content-lh);
+    margin-block: var(--yuan-content-p-gap);
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--yuan-green);
+  }
+
+  // Hope uses :not(.custom) > h* (higher specificity than plain h2/h3)
+  &:not(.custom) > h2,
+  &:not(.custom) > h3 {
+    margin-bottom: var(--yuan-heading-gap-after);
+  }
+
+  li {
+    margin-block: var(--yuan-list-item-gap);
+    line-height: var(--yuan-content-lh);
+  }
+
+  .hint-container,
+  .custom-container {
+    padding: var(--yuan-callout-pad);
+  }
+
   a {
     color: var(--yuan-green);
     text-decoration: underline;
@@ -208,14 +277,8 @@ html[data-theme="dark"] {
     }
   }
 
-  h1,
-  h2,
-  h3 {
-    color: var(--yuan-green);
-  }
-
   blockquote {
-    padding: 0.6rem 1rem;
+    padding: var(--yuan-callout-pad);
     border-inline-start: 3px solid var(--yuan-green-soft);
     border-radius: 0 6px 6px 0;
     background: var(--yuan-surface);
@@ -244,6 +307,7 @@ html[data-theme="dark"] {
   table {
     th,
     td {
+      padding: var(--yuan-table-cell-pad);
       border-color: var(--yuan-border);
     }
 
