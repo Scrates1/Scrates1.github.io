@@ -11,13 +11,9 @@ tag:
   - 常量传播
 ---
 
-::: tip 读前须知
-需要第 05 篇的平坦格和第 07 篇的摘要求解。本篇在事实边上添加值变换，让不同调用者复用同一摘要，得到各自的结果。
-:::
+**IDE（Interprocedural Distributive Environments）**在 [IFDS](07-ifds.md) 的事实关系上附加值变换，用环境记录各事实的抽象值。
 
 <!-- more -->
-
-**IDE（Interprocedural Distributive Environments）**在 [IFDS](07-ifds.md) 的事实关系上附加值变换，用环境记录各事实的抽象值。
 
 ## 1. 让事实携带值
 

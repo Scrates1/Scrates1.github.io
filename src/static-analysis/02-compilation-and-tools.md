@@ -11,13 +11,9 @@ tag:
   - CFG
 ---
 
-::: tip 读前须知
-接着第 01 篇，观察 Soot 怎样从字节码构建 Jimple 与控制流图。第 4、5 节对照 Coverity 与 Clang，第一次可以跳过。
-:::
+要分析[上一例](01-goals-and-abstraction.md)，需要识别 `y=x` 的赋值关系，以及分支后的执行顺序。Jimple 与控制流图分别提供这两类信息。
 
 <!-- more -->
-
-要分析[上一例](01-goals-and-abstraction.md)，需要识别 `y=x` 的赋值关系，以及分支后的执行顺序。Jimple 与控制流图分别提供这两类信息。
 
 以下涉及三个缩写：**IR（intermediate representation，中间表示）**是编译器或分析器内部使用的程序形式；**AST（abstract syntax tree，抽象语法树）**按源码语法结构组织程序；**CFG（control-flow graph，控制流图）**记录语句之间可能的执行转移。
 
@@ -199,7 +195,7 @@ n7: successors = []
 
 AST 侧重源码结构，Jimple 显式表达操作，CFG 则组织这些操作之间的控制流。表示中的节点不必与源码行一一对应，例如 n1 是源码里没有单独写出的参数绑定。
 
-## 4. Coverity：捕获构建上下文
+## 4. 补充：Coverity 与构建捕获
 
 对 C/C++ 等编译型项目，同一份源文件在不同宏定义、头文件路径和编译选项下可能表示不同的程序。Coverity 的**构建捕获（build capture）**模式用 `cov-build` 包裹正常的构建命令，监控其中每一次编译器调用，取得文件、选项和环境，再让 Coverity 自己的编译器前端按同样的选项处理这些源文件，建立供分析使用的中间表示。Java 项目同样用它包裹 `mvn`、`javac` 等命令。[构建捕获命令](https://docs.blackduck.com/r/coverity/latest/coverity-documentation/coverity-capture.html)、[官方架构白皮书](https://www.blackduck.com/content/dam/black-duck/en-us/whitepapers/wp-build-security-sdlc-coverity.pdf)
 
@@ -213,7 +209,7 @@ AST 侧重源码结构，Jimple 显式表达操作，CFG 则组织这些操作�
 
 图中①—④是对源码理解与表示构建职责的教学类比，不代表 Coverity 的内部模块划分。本图仅覆盖构建捕获模式；最终报告属于分析结果，不属于编译后端的目标代码。
 
-## 5. Clang：AST 之后的两条路线
+## 5. 补充：Clang 的两条路线
 
 Clang 把源码处理为 AST 后，两条路线在此分开：
 
@@ -244,7 +240,6 @@ Static Analyzer 的引擎进行路径敏感的符号执行（symbolic execution�
 
 - Soot 将栈式字节码转换为有类型的 **Jimple**，直接表达 `y=x` 等依赖。
 - **CFG** 记录可能的控制转移；本例 n4 分叉、n6 汇合，也可按三个基本块组织。
-- Coverity 的构建捕获取得编译上下文；Clang 的 Static Analyzer 在源码级 AST/CFG 上分析。
 
 下一篇在这张 CFG 上计算污点。
 

@@ -43,8 +43,11 @@ for p in docs:
 for p in articles:
     s = p.read_text(encoding='utf-8')
     assert s.startswith('---\n') and re.search(r'^title: ', s, re.M), f'Frontmatter: {p}'
-    assert '::: tip 读前须知' in s, f'Missing 读前须知: {p}'
+    assert '::: tip 读前须知' not in s, f'Obsolete 读前须知 tip: {p}'
     assert '<!-- more -->' in s, f'Missing excerpt marker: {p}'
+    more_pos = s.index('<!-- more -->')
+    assert s.index('\n---\n') < more_pos, f'Excerpt marker before frontmatter end: {p}'
+    assert not s[s.index('\n---\n') + 5:more_pos].lstrip().startswith('#'), f'Excerpt should follow opening prose: {p}'
     assert '## 本篇要点' in s, f'Missing 本篇要点: {p}'
     assert '检查是否读懂' not in s, f'Obsolete mandatory quiz: {p}'
     assert '系列总览' in s, p
