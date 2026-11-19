@@ -11,15 +11,15 @@ tag:
   - 污点分析
 ---
 
-[第 06 篇](06-calls-and-context.md)的双调用里，若在 id 入口把事实合并，安全实参那一路也会把 c 判脏；正确做法是调用返回匹配，并且方法只分析一次、结果写成摘要。
+[第 06 篇](06-calls-and-context.md)的双调用里，期望是 b 可能有污点、c 没有。若把[第 04 篇](04-worklist-and-fixed-point.md)的工作列表直接用在 ICFG 上，A、B 在 id 入口会并成同一份事实，污点沿两条返回边送回，c 也被判脏；遍历还可能从 A 的调用接到 B 的返回。精度上要分开不同调用点的事实、只承认匹配的返回，代价上又希望 id 不必按调用点反复分析——过程间求解需要同时照顾这两端。
 
 <!-- more -->
 
-**IFDS**（Interprocedural Finite Distributive Subset）是同时满足这两个要求的通用求解框架，由 Reps、Horwitz 与 Sagiv 于 1995 年提出，定义见 [IFDS 原始论文](https://research.cs.wisc.edu/wpis/papers/popl95.pdf)。
+**IFDS**（Interprocedural Finite Distributive Subset）由 Reps、Horwitz 与 Sagiv 于 1995 年提出（[原始论文](https://research.cs.wisc.edu/wpis/papers/popl95.pdf)）。名称即定义：问题建在过程间控制流图上（Interprocedural），事实域有限（Finite），每条边上的流函数对合并满足分配律（Distributive），每个程序点的结果是事实的子集（Subset）。满足这些条件时，求解可化为图可达：只沿调用与返回匹配的路径合并，并把每个方法的分析结果写成可复用摘要。本篇用它处理上述双调用。
 
 ## 1. 全景：IFDS 是什么
 
-IFDS 不是某一种具体的分析。污点传播、变量是否可能未初始化这类问题，只要满足它的条件，都能写成同一种形式，交给同一个求解器。它由三部分组成：
+IFDS 是求解框架，不是某一种具体分析：污点传播、变量是否可能未初始化等问题，只要满足适用条件，都能写成同一种形式，交给同一个求解器。它由三部分组成：
 
 ![IFDS 的组成：分析问题满足适用条件后表示为 ESG，再由制表算法求解](assets/07-series-0.svg#light)
 
