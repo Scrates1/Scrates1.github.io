@@ -137,9 +137,9 @@ if flag:
 
 下面两张图都使用这四个元素。线段连接相邻的可比较元素，**向上表示按 `⊑` 变大，即信息变粗**；它们不是程序执行箭头。
 
-![可能污点与初始化保证的格：向上都更不精确](assets/04-series-1.svg#light)
+![可能污点与初始化保证的格：向上都更不精确](./assets/04-series-1.svg#light)
 
-![可能污点与初始化保证的格：向上都更不精确](assets/04-series-1.dark.svg#dark)
+![可能污点与初始化保证的格：向上都更不精确](./assets/04-series-1.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/04-series-1.mmd)
 

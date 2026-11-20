@@ -1,6 +1,6 @@
 # Scrates1.github.io
 
-VuePress 2 + vuepress-theme-hope 博客。`src/` 是站点源，push 到 `main` 后由 GitHub Actions 构建到 `gh-pages`。本地：`yarn install --frozen-lockfile`，`yarn docs:dev` 预览，`yarn docs:build` 构建（需 `NODE_OPTIONS=--max_old_space_size=8192`）。
+VuePress 2 + vuepress-theme-hope 博客。`src/` 是站点源，push 到 `main` 后由 GitHub Actions 构建到 `gh-pages`。本地需 Node ≥ 22.18；安装：`yarn install --frozen-lockfile --ignore-engines`（hope 声明 yarn≥2，本仓库仍用 yarn classic），`yarn docs:dev` 预览，`yarn docs:build` 构建（需 `NODE_OPTIONS=--max_old_space_size=8192`）。主题已开 `markdown.cjkFriendly`，避免中文标点旁的 `**加粗**` 露星号。
 
 ## 技术配图（全站）
 
@@ -9,7 +9,7 @@ VuePress 2 + vuepress-theme-hope 博客。`src/` 是站点源，push 到 `main` 
 - 图源与产物放在文章旁的 `assets/`：`<name>.mmd` → `<name>.svg` + `<name>.dark.svg`；先在同目录 `diagram-manifest.json` 登记类型。
 - `.mmd` 只写结构和语义 class，不写色值；配色与字体在 `scripts/diagram-style/`。
 - 渲染：`node scripts/render_named_diagrams.cjs [--dir <assets>] <name>|--all`，目检 `%TEMP%\<name>.png` 与 `.dark.png`。默认 `--dir` 为 `src/static-analysis/assets`。
-- 正文：`![图注](assets/<name>.svg#light)`，空一行，`![图注](assets/<name>.dark.svg#dark)`，图注相同。
+- 正文：`![图注](./assets/<name>.svg#light)`，空一行，`![图注](./assets/<name>.dark.svg#dark)`，图注相同（路径须带 `./`，否则 Vite 构建无法解析）。
 
 ## 静态分析系列（课程）
 

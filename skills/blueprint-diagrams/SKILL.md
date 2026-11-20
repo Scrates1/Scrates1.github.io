@@ -105,12 +105,12 @@ flowchart TB
 定点改 Markdown（禁止 shell 批量替换正文）：
 
 ```markdown
-![相同图注](assets/<name>.svg#light)
+![相同图注](./assets/<name>.svg#light)
 
-![相同图注](assets/<name>.dark.svg#dark)
+![相同图注](./assets/<name>.dark.svg#dark)
 ```
 
-可选：链到 GitHub 上的 `.mmd`。站点已开 `mdEnhance.imgMark`；两行图注必须相同。
+可选：链到 GitHub 上的 `.mmd`。站点已开 `markdown.imgMark`；路径须带 `./`；两行图注必须相同。
 
 ### 5. 校验
 

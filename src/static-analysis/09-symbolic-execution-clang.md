@@ -43,9 +43,9 @@ if (!flag) sink(y);
 
 `¬` 读作“非”，`∧` 读作“且”。这里的冲突只涉及同一个布尔符号，无需复杂算术求解。
 
-![路径条件 β 与非 β 冲突，排除带污点的 sink 路径](assets/09-series-1.svg#light)
+![路径条件 β 与非 β 冲突，排除带污点的 sink 路径](./assets/09-series-1.svg#light)
 
-![路径条件 β 与非 β 冲突，排除带污点的 sink 路径](assets/09-series-1.dark.svg#dark)
+![路径条件 β 与非 β 冲突，排除带污点的 sink 路径](./assets/09-series-1.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/09-series-1.mmd)
 

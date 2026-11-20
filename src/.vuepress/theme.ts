@@ -2,7 +2,6 @@ import { hopeTheme } from "vuepress-theme-hope";
 import navbar from "./navbar.js";
 import sidebar from "./sidebar.js";
 
-
 export default hopeTheme({
   hostname: "https://Scrates1.github.io",
 
@@ -16,13 +15,10 @@ export default hopeTheme({
   // 减少主题默认装饰，整体更干净
   pure: true,
 
-  print:false,
+  print: false,
 
   // 显示全屏图标
-  fullscreen:true,
-
-
-  iconAssets: "iconfont",
+  fullscreen: true,
 
   logo: "/logo.jpg",
 
@@ -36,19 +32,18 @@ export default hopeTheme({
   docsDir: "src",
 
   blog: {
-    timeline:"时光印记",
+    timeline: "时光印记",
 
     medias: {
       GitHub: "https://github.com/Scrates1",
     },
     avatar: "/avatar.jpg",
-    roundAvatar:true,
+    roundAvatar: true,
     //每页文章数量
-    articlePerPage:10,
+    articlePerPage: 10,
   },
 
   locales: {
-
     /**
      * Chinese locale config
      */
@@ -58,11 +53,15 @@ export default hopeTheme({
 
       // sidebar
       sidebar: sidebar,
-      headerDepth:4,
+      // 原 headerDepth: 4
+      toc: {
+        levels: [2, 4],
+      },
 
       //footer: '<a href="https://beian.miit.gov.cn/">鲁ICP备2021042179号-1</a>',
 
-      copyright:'<a href="https://beian.miit.gov.cn/">鲁ICP备2021042179号-1</a> | Copyright © 2022-present | 远起',
+      copyright:
+        '<a href="https://beian.miit.gov.cn/">鲁ICP备2021042179号-1</a> | Copyright © 2022-present | 远起',
 
       displayFooter: true,
 
@@ -78,16 +77,41 @@ export default hopeTheme({
     },
   },
 
-
-
   encrypt: {
     config: {
-      "/demo/encrypt.html": ["1234"],
+      "/demo/encrypt.html": {
+        password: "1234",
+      },
+    },
+  },
+
+  // 只开站点实际用到的 Markdown 能力；cjkFriendly 修中文加粗边界
+  markdown: {
+    align: true,
+    cjkFriendly: true,
+    figure: true,
+    gfm: true,
+    hint: true,
+    imgLazyload: true,
+    // ![](a.svg#light) / ![](a.dark.svg#dark)：按站点日夜主题切换图片
+    imgMark: true,
+    imgSize: true,
+    mark: true,
+    sub: true,
+    sup: true,
+    tasklist: true,
+    vPre: true,
+    revealjs: {
+      plugins: ["highlight", "math", "search", "notes", "zoom"],
     },
   },
 
   plugins: {
     blog: true,
+
+    icon: {
+      assets: "fontawesome",
+    },
 
     // If you don’t need comment feature, you can remove following option
     // The following config is for demo ONLY, if you need comment feature, please generate and use your own config, see comment plugin documentation for details.
@@ -102,128 +126,6 @@ export default hopeTheme({
       //category: "Announcements",
       category: "General",
       categoryId: "DIC_kwDOJF79Xs4CUrl2",
-
-      /**
-       * Using Twikoo
-       */
-      // provider: "Twikoo",
-      // envId: "https://twikoo.ccknbc.vercel.app",
-
-      /**
-       * Using Waline
-       */
-      // provider: "Waline",
-      // serverURL: "https://vuepress-theme-hope-comment.vercel.app",
-
-      /**
-       * Using artalk
-       */
-      // provider: "Artalk",
-      // site: "artalk-demo",
-      // server: "https://demo-artalk.jjdxb.top/",
     },
-
-    // Disable features you don’t want here
-    mdEnhance: {
-      align: true,
-      attrs: true,
-      chart: true,
-      codetabs: true,
-      container: true,
-      demo: true,
-      echarts: true,
-      figure: true,
-      flowchart: true,
-      gfm: true,
-      imgLazyload: true,
-      // ![](a.svg#light) / ![](a.dark.svg#dark)：按站点日夜主题切换图片（静态分析系列的图用到）
-      imgMark: true,
-      imgSize: true,
-      include: true,
-      katex: true,
-      mark: true,
-      mermaid: true,
-      playground: {
-        presets: ["ts", "vue"],
-      },
-      presentation: {
-        plugins: ["highlight", "math", "search", "notes", "zoom"],
-      },
-      stylize: [
-        {
-          matcher: "Recommended",
-          replacer: ({ tag }) => {
-            if (tag === "em")
-              return {
-                tag: "Badge",
-                attrs: { type: "tip" },
-                content: "Recommended",
-              };
-          },
-        },
-      ],
-      sub: true,
-      sup: true,
-      tabs: true,
-      vPre: true,
-      vuePlayground: true,
-    },
-
-    // uncomment these if you want a PWA
-    // pwa: {
-    //   favicon: "/favicon.ico",
-    //   cacheHTML: true,
-    //   cachePic: true,
-    //   appendBase: true,
-    //   apple: {
-    //     icon: "/assets/icon/apple-icon-152.png",
-    //     statusBarColor: "black",
-    //   },
-    //   msTile: {
-    //     image: "/assets/icon/ms-icon-144.png",
-    //     color: "#ffffff",
-    //   },
-    //   manifest: {
-    //     icons: [
-    //       {
-    //         src: "/assets/icon/chrome-mask-512.png",
-    //         sizes: "512x512",
-    //         purpose: "maskable",
-    //         type: "image/png",
-    //       },
-    //       {
-    //         src: "/assets/icon/chrome-mask-192.png",
-    //         sizes: "192x192",
-    //         purpose: "maskable",
-    //         type: "image/png",
-    //       },
-    //       {
-    //         src: "/assets/icon/chrome-512.png",
-    //         sizes: "512x512",
-    //         type: "image/png",
-    //       },
-    //       {
-    //         src: "/assets/icon/chrome-192.png",
-    //         sizes: "192x192",
-    //         type: "image/png",
-    //       },
-    //     ],
-    //     shortcuts: [
-    //       {
-    //         name: "Demo",
-    //         short_name: "Demo",
-    //         url: "/demo/",
-    //         icons: [
-    //           {
-    //             src: "/assets/icon/guide-maskable.png",
-    //             sizes: "192x192",
-    //             purpose: "maskable",
-    //             type: "image/png",
-    //           },
-    //         ],
-    //       },
-    //     ],
-    //   },
-    // },
   },
 });

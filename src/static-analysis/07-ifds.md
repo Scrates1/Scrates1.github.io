@@ -21,9 +21,9 @@ tag:
 
 IFDS 是求解框架，不是某一种具体分析：污点传播、变量是否可能未初始化等问题，只要满足适用条件，都能写成同一种形式，交给同一个求解器。它由三部分组成：
 
-![IFDS 的组成：分析问题满足适用条件后表示为 ESG，再由制表算法求解](assets/07-series-0.svg#light)
+![IFDS 的组成：分析问题满足适用条件后表示为 ESG，再由制表算法求解](./assets/07-series-0.svg#light)
 
-![IFDS 的组成：分析问题满足适用条件后表示为 ESG，再由制表算法求解](assets/07-series-0.dark.svg#dark)
+![IFDS 的组成：分析问题满足适用条件后表示为 ESG，再由制表算法求解](./assets/07-series-0.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/07-series-0.mmd)
 
@@ -129,9 +129,9 @@ f(S) = f(∅) ∪ 所有 d∈S 的 f({d}) 的并集
 
 把程序点上的事实分别展开为节点，得到 **ESG（Exploded Supergraph，爆炸超图）**。节点 `(n,d)` 表示语句 n 执行前的事实 d，边由表示关系给出。“爆炸”指原来的 `|N|` 个程序点最多展开为 `|N|×(|D|+1)` 个节点。
 
-![将赋值展开为程序点之间的单事实边](assets/07-series-1.svg#light)
+![将赋值展开为程序点之间的单事实边](./assets/07-series-1.svg#light)
 
-![将赋值展开为程序点之间的单事实边](assets/07-series-1.dark.svg#dark)
+![将赋值展开为程序点之间的单事实边](./assets/07-series-1.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/07-series-1.mmd)
 
@@ -152,9 +152,9 @@ ESG 可以只按需要展开。某位置多个事实可达时，将它们收集�
 
 把这四类边放到程序点上，就得到本例的 ESG。图中省略了始终同行的 Λ 恒等边和未受影响事实的恒等边，只保留与污点有关的部分：
 
-![id 双调用的 ESG：A 的调用、返回与调用到返回边，以及 B 上无匹配路径的返回边](assets/07-series-2.svg#light)
+![id 双调用的 ESG：A 的调用、返回与调用到返回边，以及 B 上无匹配路径的返回边](./assets/07-series-2.svg#light)
 
-![id 双调用的 ESG：A 的调用、返回与调用到返回边，以及 B 上无匹配路径的返回边](assets/07-series-2.dark.svg#dark)
+![id 双调用的 ESG：A 的调用、返回与调用到返回边，以及 B 上无匹配路径的返回边](./assets/07-series-2.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/07-series-2.mmd)
 

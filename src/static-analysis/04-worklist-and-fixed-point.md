@@ -51,9 +51,9 @@ sink(z);
 
 把初始化合记为 P，循环条件记为 H，`z=y` 记为 Z，`y=x` 记为 Y，更新条件并跳回循环头记为 C，`sink(z)` 记为 S：
 
-![污点沿循环回边从 x 传播到 y、z](assets/03-series-1.svg#light)
+![污点沿循环回边从 x 传播到 y、z](./assets/03-series-1.svg#light)
 
-![污点沿循环回边从 x 传播到 y、z](assets/03-series-1.dark.svg#dark)
+![污点沿循环回边从 x 传播到 y、z](./assets/03-series-1.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/03-series-1.mmd)
 

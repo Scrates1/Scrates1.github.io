@@ -1,7 +1,7 @@
 ---
 title: 幻灯片页
-icon: slides
-layout: Slide
+icon: person-chalkboard
+layout: Slides
 date: 2022-08-17 20:52:01
 ---
 

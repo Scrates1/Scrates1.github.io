@@ -1,5 +1,6 @@
+import { viteBundler } from "@vuepress/bundler-vite";
 import { defineUserConfig } from "vuepress";
-import { getDirname, path } from "@vuepress/utils";
+import { getDirname, path } from "vuepress/utils";
 import theme from "./theme.js";
 
 const __dirname = getDirname(import.meta.url);
@@ -16,6 +17,8 @@ export default defineUserConfig({
       description: "蜉蝣天地，且行且喜",
     },
   },
+
+  bundler: viteBundler(),
 
   theme,
 

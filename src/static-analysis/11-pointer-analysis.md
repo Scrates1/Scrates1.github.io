@@ -90,9 +90,9 @@ S6: sink(t2)
 
 `pts(t2)={s}` 表示 sink 可能收到 `input()` 创建的字符串对象。若另有“s 带污点”的来源模型，就能报告这条传播；指针分析本身只负责对象关系。
 
-![别名例子的指向图：a、b 都指向 o1，o1.f 指向 s，读出到 t2](assets/11-series-1.svg#light)
+![别名例子的指向图：a、b 都指向 o1，o1.f 指向 s，读出到 t2](./assets/11-series-1.svg#light)
 
-![别名例子的指向图：a、b 都指向 o1，o1.f 指向 s，读出到 t2](assets/11-series-1.dark.svg#dark)
+![别名例子的指向图：a、b 都指向 o1，o1.f 指向 s，读出到 t2](./assets/11-series-1.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/11-series-1.mmd)
 
@@ -157,9 +157,9 @@ o3 合并了 A、B 各自创建的对象，字段共用 `pts(o3.f)`，于是产�
 
 还需让对象带上上下文，即**上下文敏感堆（context-sensitive heap，也叫 heap cloning）**：`pts(h1)={o3[A]}`、`pts(h2)={o3[B]}`。store 只写 `o3[A].f`，load 读 `o3[B].f` 得到空集，误报消失。只分开方法状态，无法分开共用的抽象对象。
 
-![工厂例子：上下文不敏感时 h1、h2 共享 o3；调用点上下文加到堆上后分成 o3[A]、o3[B]](assets/11-series-2.svg#light)
+![工厂例子：上下文不敏感时 h1、h2 共享 o3；调用点上下文加到堆上后分成 o3[A]、o3[B]](./assets/11-series-2.svg#light)
 
-![工厂例子：上下文不敏感时 h1、h2 共享 o3；调用点上下文加到堆上后分成 o3[A]、o3[B]](assets/11-series-2.dark.svg#dark)
+![工厂例子：上下文不敏感时 h1、h2 共享 o3；调用点上下文加到堆上后分成 o3[A]、o3[B]](./assets/11-series-2.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/11-series-2.mmd)
 

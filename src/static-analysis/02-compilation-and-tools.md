@@ -21,9 +21,9 @@ tag:
 
 六阶段描述编译器完成的工作；前端、中端、后端按职责把这些工作归组。下面采用编译原理教材的典型划分（见龙书第 1 章，[Aho 等，Compilers: Principles, Techniques, and Tools](https://suif.stanford.edu/dragonbook/)），实际工具的阶段边界可以不同。
 
-![编译六阶段与前端、中端、后端](assets/02-01-compiler-stages.svg#light)
+![编译六阶段与前端、中端、后端](./assets/02-01-compiler-stages.svg#light)
 
-![编译六阶段与前端、中端、后端](assets/02-01-compiler-stages.dark.svg#dark)
+![编译六阶段与前端、中端、后端](./assets/02-01-compiler-stages.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/02-01-compiler-stages.mmd)
 
@@ -42,9 +42,9 @@ tag:
 
 Soot 提供读取类和方法、转换程序表示、构建分析图等基础设施。本篇采用传统 Soot 的常见路线：读入 Java 字节码，转换成 Jimple，再建立控制流图。[Soot 官方介绍](https://soot-oss.github.io/soot/)
 
-![Soot 的字节码输入、Jimple 分析与可选输出](assets/02-02-soot.svg#light)
+![Soot 的字节码输入、Jimple 分析与可选输出](./assets/02-02-soot.svg#light)
 
-![Soot 的字节码输入、Jimple 分析与可选输出](assets/02-02-soot.dark.svg#dark)
+![Soot 的字节码输入、Jimple 分析与可选输出](./assets/02-02-soot.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/02-02-soot.mmd)
 
@@ -142,9 +142,9 @@ Jimple 直接写出 `y=x` 和调用结果的接收变量，复杂表达式也会
 
 控制流图用节点表示程序位置，用有向边表示“下一步可能执行谁”。本例每条 Jimple 语句对应一个节点；顺序语句连接下一条，条件跳转同时连接跳转目标和下一条语句，不判断条件是否可满足。
 
-![同一方法的语句级正常控制流图](assets/02-05-jimple-cfg.svg#light)
+![同一方法的语句级正常控制流图](./assets/02-05-jimple-cfg.svg#light)
 
-![同一方法的语句级正常控制流图](assets/02-05-jimple-cfg.dark.svg#dark)
+![同一方法的语句级正常控制流图](./assets/02-05-jimple-cfg.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/02-05-jimple-cfg.mmd)
 
@@ -181,9 +181,9 @@ n7: successors = []
 
 本例的 `BriefBlockGraph` 实际给出三个块：
 
-![同一 CFG 的基本块视图](assets/02-06-basic-blocks.svg#light)
+![同一 CFG 的基本块视图](./assets/02-06-basic-blocks.svg#light)
 
-![同一 CFG 的基本块视图](assets/02-06-basic-blocks.dark.svg#dark)
+![同一 CFG 的基本块视图](./assets/02-06-basic-blocks.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/02-06-basic-blocks.mmd)
 
@@ -199,9 +199,9 @@ AST 侧重源码结构，Jimple 显式表达操作，CFG 则组织这些操作�
 
 对 C/C++ 等编译型项目，同一份源文件在不同宏定义、头文件路径和编译选项下可能表示不同的程序。Coverity 的**构建捕获（build capture）**模式用 `cov-build` 包裹正常的构建命令，监控其中每一次编译器调用，取得文件、选项和环境，再让 Coverity 自己的编译器前端按同样的选项处理这些源文件，建立供分析使用的中间表示。Java 项目同样用它包裹 `mvn`、`javac` 等命令。[构建捕获命令](https://docs.blackduck.com/r/coverity/latest/coverity-documentation/coverity-capture.html)、[官方架构白皮书](https://www.blackduck.com/content/dam/black-duck/en-us/whitepapers/wp-build-security-sdlc-coverity.pdf)
 
-![Coverity 构建捕获与分析路线](assets/02-03-coverity.svg#light)
+![Coverity 构建捕获与分析路线](./assets/02-03-coverity.svg#light)
 
-![Coverity 构建捕获与分析路线](assets/02-03-coverity.dark.svg#dark)
+![Coverity 构建捕获与分析路线](./assets/02-03-coverity.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/02-03-coverity.mmd)
 
@@ -218,9 +218,9 @@ Clang 把源码处理为 AST 后，两条路线在此分开：
 
 流程依据：[Clang 命令说明](https://clang.llvm.org/docs/CommandGuide/clang.html)、[Clang 内部结构文档](https://clang.llvm.org/docs/InternalsManual.html)。
 
-![Clang 编译路线与 Static Analyzer 分支](assets/02-04-clang.svg#light)
+![Clang 编译路线与 Static Analyzer 分支](./assets/02-04-clang.svg#light)
 
-![Clang 编译路线与 Static Analyzer 分支](assets/02-04-clang.dark.svg#dark)
+![Clang 编译路线与 Static Analyzer 分支](./assets/02-04-clang.dark.svg#dark)
 
 [查看可编辑图源](https://github.com/Scrates1/Scrates1.github.io/blob/main/src/static-analysis/assets/02-04-clang.mmd)
 
