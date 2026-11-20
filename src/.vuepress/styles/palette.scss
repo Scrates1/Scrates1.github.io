@@ -1,33 +1,31 @@
 // 远起 · 头像/秋山主题（含暗色）
-// Hope 要求 bg/text/border 等为 light/dark map，不能写成单色
-$theme-color: #2f4a3f;
-
-$text-color: (
+// hope rc：主题色改写 config.scss 的 $theme-color；此处用 $vp-c-* 注入 CSS 变量
+$vp-c-text: (
   light: #3a2a22,
   dark: #ebe4d6,
 );
 
-$bg-color: (
+$vp-c-bg: (
   light: #f5f2ec,
   dark: #1c1a17,
 );
 
-$bg-color-secondary: (
+$vp-c-bg-alt: (
   light: #fbf8f2,
   dark: #25221e,
 );
 
-$bg-color-tertiary: (
+$vp-c-bg-elv: (
   light: #ece8df,
   dark: #2a2621,
 );
 
-$border-color: (
+$vp-c-border: (
   light: #e3dacb,
   dark: #3a342d,
 );
 
-$card-shadow: (
+$vp-c-shadow: (
   light: rgba(58, 42, 34, 0.06),
   dark: rgba(0, 0, 0, 0.35),
 );
