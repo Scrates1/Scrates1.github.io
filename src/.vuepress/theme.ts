@@ -15,6 +15,9 @@ export default hopeTheme({
   // 减少主题默认装饰，整体更干净
   pure: true,
 
+  // 保持导航和两侧目录清晰，关闭纯净模式默认启用的专注效果
+  focus: false,
+
   print: false,
 
   // 显示全屏图标
